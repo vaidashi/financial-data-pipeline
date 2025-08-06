@@ -43,5 +43,14 @@ module.exports = {
       },
     },
   },
-  ignorePatterns: ['dist/', 'build/', 'node_modules/', '*.js', '!.eslintrc.js'],
+  ignorePatterns: [
+    'dist/',
+    'build/',
+    'node_modules/',
+    '*.js',
+    '!.eslintrc.js',
+    '**/*.d.ts',
+    '*.tsbuildinfo',
+    'coverage/',
+  ],
 };

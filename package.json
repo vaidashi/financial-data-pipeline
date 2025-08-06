@@ -15,7 +15,9 @@
     "lint:fix": "npm run lint:fix --workspaces",
     "format": "prettier --write \"packages/**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"packages/**/*.{ts,tsx,js,jsx,json,md}\"",
-    "clean": "npm run clean --workspaces && rm -rf node_modules",
+    "clean": "npm run clean --workspaces && rimraf node_modules .tsbuildinfo",
+    "clean:all": "npm run clean && rimraf packages/*/node_modules packages/*/.tsbuildinfo packages/*/dist packages/*/build coverage",
+    "clean:artifacts": "rimraf packages/**/*.d.ts packages/**/*.d.ts.map packages/**/*.tsbuildinfo !packages/*/src/**/*.d.ts",
     "prepare": "husky install",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
@@ -32,6 +34,7 @@
     "husky": "^8.0.3",
     "lint-staged": "^15.1.0",
     "prettier": "^3.1.0",
+    "rimraf": "^5.0.10",
     "typescript": "^5.3.2"
   },
   "engines": {
