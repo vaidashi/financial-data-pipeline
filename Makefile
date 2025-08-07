@@ -1,4 +1,4 @@
-.PHONY: help install dev build test lint clean clean-all clean-artifacts docker-up docker-down docker-build format setup ci
+.PHONY: help install dev build test lint clean docker-up docker-down docker-build format setup ci db-setup db-migrate db-reset db-seed db-studio
 
 # Colors for output
 RED := \033[31m
@@ -74,18 +74,60 @@ clean-artifacts: ## Remove TypeScript artifacts (.d.ts, .tsbuildinfo)
 
 docker-up: ## Start Docker services
 	@echo "$(YELLOW)Starting Docker services...$(RESET)"
-	@npm run docker:up
+	@docker-compose up -d
 	@echo "$(GREEN)✅ Docker services started$(RESET)"
+	@echo "$(BLUE)Services available at:$(RESET)"
+	@echo "  📊 Adminer (DB): http://localhost:8080"
+	@echo "  🔴 Redis Commander: http://localhost:8081"
 
 docker-down: ## Stop Docker services
 	@echo "$(YELLOW)Stopping Docker services...$(RESET)"
-	@npm run docker:down
+	@docker-compose down
 	@echo "$(GREEN)✅ Docker services stopped$(RESET)"
 
 docker-build: ## Build Docker images
 	@echo "$(YELLOW)Building Docker images...$(RESET)"
-	@npm run docker:build
+	@docker-compose build
 	@echo "$(GREEN)✅ Docker images built$(RESET)"
+
+docker-logs: ## View Docker logs
+	@docker-compose logs -f
+
+# Database Commands
+db-setup: docker-up ## Set up database with Docker and run initial migration
+	@echo "$(YELLOW)Setting up database...$(RESET)"
+	@sleep 5  # Wait for PostgreSQL to be ready
+	@cd packages/backend && npm run db:migrate
+	@echo "$(GREEN)✅ Database setup completed$(RESET)"
+
+db-migrate: ## Run database migrations
+	@echo "$(YELLOW)Running database migrations...$(RESET)"
+	@cd packages/backend && npm run db:migrate
+	@echo "$(GREEN)✅ Database migrations completed$(RESET)"
+
+db-migrate-deploy: ## Deploy migrations to production
+	@echo "$(YELLOW)Deploying database migrations...$(RESET)"
+	@cd packages/backend && npm run db:migrate:deploy
+	@echo "$(GREEN)✅ Database migrations deployed$(RESET)"
+
+db-reset: ## Reset database and run migrations
+	@echo "$(YELLOW)Resetting database...$(RESET)"
+	@cd packages/backend && npm run db:reset
+	@echo "$(GREEN)✅ Database reset completed$(RESET)"
+
+db-seed: ## Seed database with sample data
+	@echo "$(YELLOW)Seeding database...$(RESET)"
+	@cd packages/backend && npm run db:seed
+	@echo "$(GREEN)✅ Database seeded successfully$(RESET)"
+
+db-studio: ## Open Prisma Studio
+	@echo "$(YELLOW)Opening Prisma Studio...$(RESET)"
+	@cd packages/backend && npm run db:studio
+
+db-generate: ## Generate Prisma client
+	@echo "$(YELLOW)Generating Prisma client...$(RESET)"
+	@cd packages/backend && npm run db:generate
+	@echo "$(GREEN)✅ Prisma client generated$(RESET)"
 
 setup: clean-artifacts ## Initial project setup
 	@echo "$(BLUE)🚀 Setting up Financial Data Pipeline...$(RESET)"
@@ -94,4 +136,24 @@ setup: clean-artifacts ## Initial project setup
 	@make clean-artifacts
 	@echo "$(GREEN)✅ Project setup completed!$(RESET)"
 
-ci: lint
+setup-full: setup db-setup db-seed ## Complete setup including database
+	@echo "$(GREEN)✅ Full setup completed!$(RESET)"
+	@echo "$(BLUE)Available services:$(RESET)"
+	@echo "  🚀 Backend API: http://localhost:3001"
+	@echo "  🎨 Frontend: http://localhost:3000"
+	@echo "  📊 Adminer: http://localhost:8080"
+	@echo "  🔴 Redis Commander: http://localhost:8081"
+
+ci: lint format-check test build ## Run CI pipeline locally
+	@echo "$(GREEN)✅ CI pipeline completed successfully!$(RESET)"
+
+check-deps: ## Check for outdated dependencies
+	@echo "$(YELLOW)Checking for outdated dependencies...$(RESET)"
+	@npm outdated || true
+
+update-deps: ## Update dependencies
+	@echo "$(YELLOW)Updating dependencies...$(RESET)"
+	@npm update
+
+reset: clean install ## Reset project (clean + install)
+	@echo "$(GREEN)✅ Project reset completed$(RESET)"
