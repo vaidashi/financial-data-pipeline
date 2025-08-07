@@ -20,8 +20,8 @@ describe('AppController', () => {
       expect(appController.getHello()).toBe('Financial Data Pipeline API is running!');
     });
 
-    it('should return health status', () => {
-      const health = appController.getHealth();
+    it('should return health status', async () => {
+      const health = await appController.getHealth();
       expect(health.status).toBe('ok');
       expect(health.timestamp).toBeDefined();
     });

@@ -42,6 +42,7 @@ This is a monorepo containing:
 
     make clean        # Clean build artifacts and node_modules
     make setup        # Initial project setup
+    make setup-full   # Project setup and db init/seed
     make ci           # Run CI pipeline locally
     make help         # Show all available commands
 

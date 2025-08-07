@@ -74,7 +74,7 @@ clean-artifacts: ## Remove TypeScript artifacts (.d.ts, .tsbuildinfo)
 
 docker-up: ## Start Docker services
 	@echo "$(YELLOW)Starting Docker services...$(RESET)"
-	@docker-compose up -d
+	@docker compose up -d
 	@echo "$(GREEN)✅ Docker services started$(RESET)"
 	@echo "$(BLUE)Services available at:$(RESET)"
 	@echo "  📊 Adminer (DB): http://localhost:8080"
@@ -82,16 +82,16 @@ docker-up: ## Start Docker services
 
 docker-down: ## Stop Docker services
 	@echo "$(YELLOW)Stopping Docker services...$(RESET)"
-	@docker-compose down
+	@docker compose down
 	@echo "$(GREEN)✅ Docker services stopped$(RESET)"
 
 docker-build: ## Build Docker images
 	@echo "$(YELLOW)Building Docker images...$(RESET)"
-	@docker-compose build
+	@docker compose build
 	@echo "$(GREEN)✅ Docker images built$(RESET)"
 
 docker-logs: ## View Docker logs
-	@docker-compose logs -f
+	@docker compose logs -f
 
 # Database Commands
 db-setup: docker-up ## Set up database with Docker and run initial migration

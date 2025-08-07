@@ -1,4 +1,5 @@
-import { PrismaClient, InstrumentType, UserRole, DataInterval, FinancialInstrument} from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { InstrumentType, UserRole, DataInterval, FinancialInstrument } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -221,7 +222,7 @@ async function main(): Promise<void> {
     const instrument = createdInstruments.find(i => i.symbol === position.symbol);
 
     if (instrument) {
-        await prisma.position.create({
+        await prisma.portfolioItem.create({
             data: {
                 portfolioId: demoPortfolio.id,
                 instrumentId: instrument.id,
@@ -303,7 +304,7 @@ async function main(): Promise<void> {
   // Sample news
   const sampleNews = [
     {
-      instrumentId: createdInstruments.find(i => i.symbol === 'AAPL')?.id,
+      instrumentId: createdInstruments.find(i => i.symbol === 'AAPL')!.id,
       title: 'Apple Reports Strong Q4 Earnings',
       summary: 'Apple Inc. reported better than expected quarterly results...',
       source: 'Financial News',
@@ -313,7 +314,7 @@ async function main(): Promise<void> {
       tags: ['earnings', 'quarterly-results'],
     },
     {
-      instrumentId: createdInstruments.find(i => i.symbol === 'TSLA')?.id,
+      instrumentId: createdInstruments.find(i => i.symbol === 'TSLA')!.id,
       title: 'Tesla Announces New Model Launch',
       summary: 'Tesla Inc. unveiled its latest electric vehicle model...',
       source: 'Tech Daily',
