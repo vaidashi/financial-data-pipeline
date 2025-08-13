@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 
 import { AppModule } from './../src/app.module';
 
@@ -20,14 +20,16 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Financial Data Pipeline API is running!');
+      .expect(res => {
+        expect(res.body.name).toBe('Financial Data Pipeline API');
+      });
   });
 
   it('/health (GET)', () => {
     return request(app.getHttpServer())
       .get('/health')
       .expect(200)
-      .expect((res) => {
+      .expect(res => {
         expect(res.body.status).toBe('ok');
         expect(res.body.timestamp).toBeDefined();
       });

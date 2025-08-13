@@ -25,7 +25,7 @@ This is a monorepo containing:
    ```bash
    git clone <repository-url>
    cd financial-data-pipeline
-   make setup
+   make setup-full
    make dev
 
 1. **Available Commands**
@@ -41,8 +41,7 @@ This is a monorepo containing:
     make docker-build # Build Docker images
 
     make clean        # Clean build artifacts and node_modules
-    make setup        # Initial project setup
-    make setup-full   # Project setup and db init/seed
+    make setup-full   # Project initial setup and db init/seed
     make ci           # Run CI pipeline locally
     make help         # Show all available commands
 

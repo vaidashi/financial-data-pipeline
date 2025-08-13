@@ -9,8 +9,8 @@ import { DatabaseService } from './database/database.service';
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    private readonly databaseService: DatabaseService,
-  ) { }
+    private readonly databaseService: DatabaseService
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get API information' })
@@ -65,7 +65,7 @@ export class AppController {
     const dbHealth = await this.databaseService.healthCheck();
 
     return {
-      status: 'healthy',
+      status: 'ok',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       database: dbHealth,

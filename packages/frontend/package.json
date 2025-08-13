@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "version": "1.0.0",
-  "description": "React frontend for financial data pipeline", 
+  "description": "React frontend for financial data pipeline",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
     "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
     "preview": "vite preview",
     "test": "vitest",
-    "test:ui": "vitest --ui", 
+    "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "clean": "rimraf dist node_modules .tsbuildinfo coverage",
     "clean:dist": "rimraf dist"
@@ -25,7 +25,7 @@
     "@types/react-dom": "^18.2.15",
     "@vitejs/plugin-react": "^4.1.1",
     "eslint": "^8.54.0",
-    "eslint-plugin-react": "^7.33.2", 
+    "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
     "jsdom": "^23.0.1",

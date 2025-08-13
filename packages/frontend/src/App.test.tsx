@@ -18,7 +18,7 @@ describe('App', () => {
     });
 
     render(<App />);
-    
+
     expect(screen.getByText('Financial Data Pipeline')).toBeInTheDocument();
     expect(screen.getByText('Real-time financial data monitoring system')).toBeInTheDocument();
   });
@@ -30,7 +30,7 @@ describe('App', () => {
     });
 
     render(<App />);
-    
+
     expect(screen.getByText(/API Status: Checking.../)).toBeInTheDocument();
   });
 
@@ -38,10 +38,10 @@ describe('App', () => {
     (fetch as any).mockRejectedValue(new Error('Network error'));
 
     render(<App />);
-    
+
     // Wait for the effect to complete
     await new Promise(resolve => setTimeout(resolve, 100));
-    
+
     expect(screen.getByText(/API Status: Disconnected/)).toBeInTheDocument();
   });
 });

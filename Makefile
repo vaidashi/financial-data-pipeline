@@ -1,4 +1,4 @@
-.PHONY: help install dev build test lint clean docker-up docker-down docker-build format setup ci db-setup db-migrate db-reset db-seed db-studio
+.PHONY: help install dev build test lint clean docker-up docker-down docker-build format setup ci db-setup db-migrate db-reset db-seed db-studio api-test
 
 # Colors for output
 RED := \033[31m
@@ -36,6 +36,11 @@ test: ## Run all tests
 test-watch: ## Run tests in watch mode
 	@echo "$(YELLOW)Running tests in watch mode...$(RESET)"
 	@npm run test:watch
+
+test-e2e: ## Run end-to-end tests
+	@echo "$(YELLOW)Running end-to-end tests...$(RESET)"
+	@cd packages/backend && npm run test:e2e
+	@echo "$(GREEN)✅ E2E tests completed$(RESET)"
 
 lint: ## Run linting
 	@echo "$(YELLOW)Running linting...$(RESET)"
@@ -129,6 +134,16 @@ db-generate: ## Generate Prisma client
 	@cd packages/backend && npm run db:generate
 	@echo "$(GREEN)✅ Prisma client generated$(RESET)"
 
+# API Testing Commands
+api-test: ## Test API endpoints
+	@echo "$(YELLOW)Testing API endpoints...$(RESET)"
+	@curl -f http://localhost:3001/api/v1/health > /dev/null && echo "$(GREEN)✅ Health endpoint working$(RESET)" || echo "$(RED)❌ Health endpoint failed$(RESET)"
+	@curl -f http://localhost:3001/api/v1/instruments > /dev/null && echo "$(GREEN)✅ Instruments endpoint working$(RESET)" || echo "$(RED)❌ Instruments endpoint failed$(RESET)"
+
+api-docs: ## Open API documentation
+	@echo "$(YELLOW)Opening API documentation...$(RESET)"
+	@open http://localhost:3001/api/docs || xdg-open http://localhost:3001/api/docs
+
 setup: clean-artifacts ## Initial project setup
 	@echo "$(BLUE)🚀 Setting up Financial Data Pipeline...$(RESET)"
 	@chmod +x scripts/setup.sh
@@ -140,6 +155,7 @@ setup-full: setup db-setup db-seed ## Complete setup including database
 	@echo "$(GREEN)✅ Full setup completed!$(RESET)"
 	@echo "$(BLUE)Available services:$(RESET)"
 	@echo "  🚀 Backend API: http://localhost:3001"
+	@echo "  📚 API Docs: http://localhost:3001/api/docs"
 	@echo "  🎨 Frontend: http://localhost:3000"
 	@echo "  📊 Adminer: http://localhost:8080"
 	@echo "  🔴 Redis Commander: http://localhost:8081"

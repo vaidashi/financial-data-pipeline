@@ -9,13 +9,7 @@ import { InstrumentsModule } from './instruments/instruments.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [
-    ConfigModule,
-    DatabaseModule,
-    AuthModule,
-    UsersModule,
-    InstrumentsModule,
-  ],
+  imports: [ConfigModule, DatabaseModule, AuthModule, UsersModule, InstrumentsModule],
   controllers: [AppController],
   providers: [AppService],
 })

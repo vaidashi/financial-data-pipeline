@@ -19,7 +19,7 @@ export class AuthService {
     private readonly databaseService: DatabaseService,
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   async validateUser(email: string, password: string): Promise<Omit<User, 'password'> | null> {
@@ -43,6 +43,10 @@ export class AuthService {
       const { password: _, ...result } = user;
       return result;
     } catch (error) {
+      // Re-throw UnauthorizedException (don't catch it)
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       this.logger.error('Error validating user:', error);
       return null;
     }
@@ -62,15 +66,18 @@ export class AuthService {
     await this.usersService.updateLastLogin(user.id);
 
     const payload: JwtPayload = {
-        sub: user.id,
-        email: user.email,
-        role: user.role
+      sub: user.id,
+      email: user.email,
+      role: user.role,
     };
 
     const accessToken = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
-    });
+    const refreshToken = this.jwtService.sign(
+      { ...payload, jti: Math.random().toString(36) },
+      {
+        expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
+      }
+    );
 
     // Store refresh token
     await this.databaseService.userSession.create({
@@ -90,7 +97,7 @@ export class AuthService {
     };
   }
 
-   async register(registerDto: RegisterDto): Promise<{
+  async register(registerDto: RegisterDto): Promise<{
     user: Omit<User, 'password'>;
     accessToken: string;
     refreshToken: string;
@@ -111,12 +118,12 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(registerDto.password, saltRounds);
 
     const user = await this.usersService.create({
-        email: registerDto.email,
-        username: registerDto.username,
-        password: hashedPassword,
-        firstName: registerDto.firstName,
-        lastName: registerDto.lastName,
-        role: UserRole.USER
+      email: registerDto.email,
+      username: registerDto.username,
+      password: hashedPassword,
+      firstName: registerDto.firstName ?? null,
+      lastName: registerDto.lastName ?? null,
+      role: UserRole.USER,
     });
 
     // Create default portfolio and watchlist
@@ -146,9 +153,12 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload);
-    const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
-    });
+    const refreshToken = this.jwtService.sign(
+      { ...payload, jti: Math.random().toString(36) },
+      {
+        expiresIn: this.configService.get<string>('jwt.refreshExpiresIn'),
+      }
+    );
 
     await this.databaseService.userSession.create({
       data: {

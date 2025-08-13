@@ -79,8 +79,13 @@ export class DatabaseService extends PrismaClient implements OnModuleInit, OnMod
     try {
       const [versionResult, connectionsResult, sizeResult] = await Promise.all([
         this.$queryRaw`SELECT version()` as Promise<[{ version: string }]>,
-        this.$queryRaw`SELECT count(*) as count FROM pg_stat_activity` as Promise<[{ count: bigint }]>,
-        this.$queryRaw`SELECT pg_size_pretty(pg_database_size(current_database())) as size` as Promise<[{ size: string }]>,
+        this.$queryRaw`SELECT count(*) as count FROM pg_stat_activity` as Promise<
+          [{ count: bigint }]
+        >,
+        this
+          .$queryRaw`SELECT pg_size_pretty(pg_database_size(current_database())) as size` as Promise<
+          [{ size: string }]
+        >,
       ]);
 
       return {

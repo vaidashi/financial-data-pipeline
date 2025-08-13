@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -8,68 +7,397 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================================================
-// USER MANAGEMENT
-// ============================================================================
-
 model User {
-  id                String              @id @default(cuid())
-  email             String              @unique
-  username          String              @unique
-  password          String
-  firstName         String?
-  lastName          String?
-  avatar            String?
-  emailVerified     Boolean             @default(false)
-  isActive          Boolean             @default(true)
-  role              UserRole            @default(USER)
-  preferences       Json?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  lastLoginAt       DateTime?
-  
-  // Relationships
-  portfolios        Portfolio[]
-  watchlists        Watchlist[]
-  transactions      Transaction[]
-  alerts            Alert[]
-  apiKeys           ApiKey[]
-  sessions          UserSession[]
-  
+  id            String        @id @default(cuid())
+  email         String        @unique
+  username      String        @unique
+  password      String
+  firstName     String?
+  lastName      String?
+  avatar        String?
+  emailVerified Boolean       @default(false)
+  isActive      Boolean       @default(true)
+  role          UserRole      @default(USER)
+  preferences   Json?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  lastLoginAt   DateTime?
+  alerts        Alert[]
+  apiKeys       ApiKey[]
+  portfolios    Portfolio[]
+  transactions  Transaction[]
+  sessions      UserSession[]
+  watchlists    Watchlist[]
+
   @@map("users")
 }
 
 model UserSession {
-  id              String    @id @default(cuid())
-  userId          String
-  refreshToken    String    @unique
-  ipAddress       String?
-  userAgent       String?
-  expiresAt       DateTime
-  createdAt       DateTime  @default(now())
-  revokedAt       DateTime?
-  
-  // Relationships
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id           String    @id @default(cuid())
+  userId       String
+  refreshToken String    @unique
+  ipAddress    String?
+  userAgent    String?
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+  revokedAt    DateTime?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("user_sessions")
 }
 
 model ApiKey {
-  id            String    @id @default(cuid())
-  userId        String
-  name          String
-  keyHash       String    @unique
-  permissions   String[]
-  lastUsedAt    DateTime?
-  expiresAt     DateTime?
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  
-  // Relationships
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  keyHash     String    @unique
+  permissions String[]
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("api_keys")
+}
+
+model FinancialInstrument {
+  id                  String               @id @default(cuid())
+  symbol              String               @unique
+  name                String
+  description         String?
+  type                InstrumentType
+  exchange            String
+  currency            String               @default("USD")
+  sector              String?
+  industry            String?
+  marketCap           BigInt?
+  isActive            Boolean              @default(true)
+  metadata            Json?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  alerts              Alert[]
+  marketData          MarketData[]
+  news                News[]
+  portfolioItems      PortfolioItem[]
+  predictions         Prediction[]
+  realTimeQuote       RealTimeQuote?
+  sentiment           SentimentAnalysis[]
+  technicalIndicators TechnicalIndicator[]
+  transactions        Transaction[]
+  watchlistItems      WatchlistItem[]
+
+  @@map("financial_instruments")
+}
+
+model MarketData {
+  id               String              @id @default(cuid())
+  instrumentId     String
+  timestamp        DateTime
+  open             Decimal
+  high             Decimal
+  low              Decimal
+  close            Decimal
+  volume           BigInt
+  adjustedClose    Decimal?
+  dividendAmount   Decimal?
+  splitCoefficient Decimal?
+  interval         DataInterval
+  source           String              @default("UNKNOWN")
+  createdAt        DateTime            @default(now())
+  instrument       FinancialInstrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+
+  @@unique([instrumentId, timestamp, interval])
+  @@index([instrumentId, timestamp])
+  @@index([timestamp])
+  @@map("market_data")
+}
+
+model RealTimeQuote {
+  id            String              @id @default(cuid())
+  instrumentId  String              @unique
+  price         Decimal
+  change        Decimal
+  changePercent Decimal
+  volume        BigInt
+  marketCap     BigInt?
+  dayHigh       Decimal?
+  dayLow        Decimal?
+  yearHigh      Decimal?
+  yearLow       Decimal?
+  pe            Decimal?
+  eps           Decimal?
+  timestamp     DateTime
+  source        String              @default("UNKNOWN")
+  updatedAt     DateTime            @updatedAt
+  instrument    FinancialInstrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+
+  @@map("real_time_quotes")
+}
+
+model Portfolio {
+  id             String          @id @default(cuid())
+  userId         String
+  name           String
+  description    String?
+  isDefault      Boolean         @default(false)
+  totalValue     Decimal         @default(0)
+  totalCost      Decimal         @default(0)
+  totalReturn    Decimal         @default(0)
+  totalReturnPct Decimal         @default(0)
+  currency       String          @default("USD")
+  isPublic       Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  items          PortfolioItem[]
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
+
+  @@map("portfolios")
+}
+
+model PortfolioItem {
+  id             String              @id @default(cuid())
+  portfolioId    String
+  instrumentId   String
+  quantity       Decimal
+  averagePrice   Decimal
+  currentPrice   Decimal?
+  marketValue    Decimal?
+  totalCost      Decimal
+  unrealizedGain Decimal?
+  unrealizedPct  Decimal?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  instrument     FinancialInstrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  portfolio      Portfolio           @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, instrumentId])
+  @@map("portfolio_items")
+}
+
+model Transaction {
+  id           String              @id @default(cuid())
+  userId       String
+  portfolioId  String?
+  instrumentId String
+  type         TransactionType
+  quantity     Decimal
+  price        Decimal
+  totalAmount  Decimal
+  fees         Decimal             @default(0)
+  currency     String              @default("USD")
+  executedAt   DateTime
+  notes        String?
+  createdAt    DateTime            @default(now())
+  instrument   FinancialInstrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  portfolio    Portfolio?          @relation(fields: [portfolioId], references: [id])
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, executedAt])
+  @@index([instrumentId, executedAt])
+  @@map("transactions")
+}
+
+model Watchlist {
+  id          String          @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  isDefault   Boolean         @default(false)
+  isPublic    Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  items       WatchlistItem[]
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("watchlists")
+}
+
+model WatchlistItem {
+  id                 String              @id @default(cuid())
+  watchlistId        String
+  instrumentId       String
+  addedPrice         Decimal?
+  currentPrice       Decimal?
+  changeFromAdded    Decimal?
+  changePctFromAdded Decimal?
+  notes              String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  instrument         FinancialInstrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  watchlist          Watchlist           @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+
+  @@unique([watchlistId, instrumentId])
+  @@map("watchlist_items")
+}
+
+model Alert {
+  id           String              @id @default(cuid())
+  userId       String
+  instrumentId String
+  type         AlertType
+  condition    AlertCondition
+  targetValue  Decimal
+  currentValue Decimal?
+  isTriggered  Boolean             @default(false)
+  triggeredAt  DateTime?
+  isActive     Boolean             @default(true)
+  message      String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  instrument   FinancialInstrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@index([instrumentId, isActive])
+  @@map("alerts")
+}
+
+model Prediction {
+  id             String              @id @default(cuid())
+  instrumentId   String
+  modelName      String
+  modelVersion   String
+  predictionType PredictionType
+  timeHorizon    String
+  predictedValue Decimal
+  confidence     Decimal
+  actualValue    Decimal?
+  accuracy       Decimal?
+  features       Json
+  metadata       Json?
+  createdAt      DateTime            @default(now())
+  validUntil     DateTime
+  instrument     FinancialInstrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+
+  @@index([instrumentId, createdAt])
+  @@index([modelName, createdAt])
+  @@map("predictions")
+}
+
+model SentimentAnalysis {
+  id             String              @id @default(cuid())
+  instrumentId   String
+  source         String
+  sentimentScore Decimal
+  magnitude      Decimal
+  confidence     Decimal
+  textSample     String?
+  modelName      String
+  modelVersion   String
+  timestamp      DateTime
+  createdAt      DateTime            @default(now())
+  instrument     FinancialInstrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+
+  @@index([instrumentId, timestamp])
+  @@index([timestamp])
+  @@map("sentiment_analysis")
+}
+
+model TechnicalIndicator {
+  id            String              @id @default(cuid())
+  instrumentId  String
+  indicatorName String
+  value         Decimal
+  signal        String?
+  period        Int
+  timestamp     DateTime
+  interval      DataInterval
+  createdAt     DateTime            @default(now())
+  instrument    FinancialInstrument @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
+
+  @@unique([instrumentId, indicatorName, period, timestamp, interval])
+  @@index([instrumentId, indicatorName])
+  @@map("technical_indicators")
+}
+
+model News {
+  id             String               @id @default(cuid())
+  instrumentId   String?
+  title          String
+  summary        String?
+  content        String?
+  source         String
+  author         String?
+  url            String?
+  imageUrl       String?
+  publishedAt    DateTime
+  sentiment      Decimal?
+  relevanceScore Decimal?
+  tags           String[]
+  createdAt      DateTime             @default(now())
+  instrument     FinancialInstrument? @relation(fields: [instrumentId], references: [id])
+
+  @@index([instrumentId, publishedAt])
+  @@index([publishedAt])
+  @@map("news")
+}
+
+model EconomicEvent {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  country       String
+  importance    String
+  actualValue   String?
+  forecastValue String?
+  previousValue String?
+  unit          String?
+  eventTime     DateTime
+  createdAt     DateTime @default(now())
+
+  @@index([eventTime, importance])
+  @@map("economic_events")
+}
+
+model DataSource {
+  id           String    @id @default(cuid())
+  name         String    @unique
+  type         String
+  url          String?
+  isActive     Boolean   @default(true)
+  rateLimitRpm Int?
+  lastFetchAt  DateTime?
+  nextFetchAt  DateTime?
+  errorCount   Int       @default(0)
+  lastError    String?
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("data_sources")
+}
+
+model SystemMetric {
+  id        String   @id @default(cuid())
+  name      String
+  value     Decimal
+  unit      String?
+  tags      Json?
+  timestamp DateTime
+  createdAt DateTime @default(now())
+
+  @@index([name, timestamp])
+  @@index([timestamp])
+  @@map("system_metrics")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  resource   String
+  resourceId String?
+  changes    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([resource, createdAt])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
 
 enum UserRole {
@@ -77,42 +405,6 @@ enum UserRole {
   PREMIUM
   ADMIN
   SUPER_ADMIN
-}
-
-// ============================================================================
-// FINANCIAL INSTRUMENTS
-// ============================================================================
-
-
-model FinancialInstrument {
-  id              String                    @id @default(cuid())
-  symbol          String                    @unique
-  name            String
-  description     String?
-  type            InstrumentType
-  exchange        String
-  currency        String                    @default("USD")
-  sector          String?
-  industry        String?
-  marketCap       BigInt?
-  isActive        Boolean                   @default(true)
-  metadata        Json?
-  createdAt       DateTime                  @default(now())
-  updatedAt       DateTime                  @updatedAt
-  
-  // Relationships
-  marketData      MarketData[]
-  portfolioItems  PortfolioItem[]
-  watchlistItems  WatchlistItem[]
-  transactions    Transaction[]
-  alerts          Alert[]
-  predictions     Prediction[]
-  news            News[]
-  sentiment       SentimentAnalysis[]
-  technicalIndicators TechnicalIndicator[]
-  realTimeQuote   RealTimeQuote?
-  
-  @@map("financial_instruments")
 }
 
 enum InstrumentType {
@@ -128,59 +420,6 @@ enum InstrumentType {
   FUTURE
 }
 
-// ============================================================================
-// MARKET DATA
-// ============================================================================
-
-model MarketData {
-  id                    String                @id @default(cuid())
-  instrumentId          String
-  timestamp             DateTime
-  open                  Decimal
-  high                  Decimal
-  low                   Decimal
-  close                 Decimal
-  volume                BigInt
-  adjustedClose         Decimal?
-  dividendAmount        Decimal?
-  splitCoefficient      Decimal?
-  interval              DataInterval
-  source                String                @default("UNKNOWN")
-  createdAt             DateTime              @default(now())
-  
-  // Relationships
-  instrument            FinancialInstrument   @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
-  
-  @@unique([instrumentId, timestamp, interval])
-  @@index([instrumentId, timestamp])
-  @@index([timestamp])
-  @@map("market_data")
-}
-
-model RealTimeQuote {
-  id                    String                @id @default(cuid())
-  instrumentId          String                @unique
-  price                 Decimal
-  change                Decimal
-  changePercent         Decimal
-  volume                BigInt
-  marketCap             BigInt?
-  dayHigh               Decimal?
-  dayLow                Decimal?
-  yearHigh              Decimal?
-  yearLow               Decimal?
-  pe                    Decimal?
-  eps                   Decimal?
-  timestamp             DateTime
-  source                String                @default("UNKNOWN")
-  updatedAt             DateTime              @updatedAt
-  
-  // Relationships
-  instrument            FinancialInstrument   @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
-  
-  @@map("real_time_quotes")
-}
-
 enum DataInterval {
   ONE_MINUTE
   FIVE_MINUTES
@@ -193,80 +432,6 @@ enum DataInterval {
   MONTHLY
 }
 
-// ============================================================================
-// PORTFOLIO MANAGEMENT
-// ============================================================================
-
-model Portfolio {
-  id              String          @id @default(cuid())
-  userId          String
-  name            String
-  description     String?
-  isDefault       Boolean         @default(false)
-  totalValue      Decimal         @default(0)
-  totalCost       Decimal         @default(0)
-  totalReturn     Decimal         @default(0)
-  totalReturnPct  Decimal         @default(0)
-  currency        String          @default("USD")
-  isPublic        Boolean         @default(false)
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  
-  // Relationships
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items           PortfolioItem[]
-  transactions    Transaction[]
-  
-  @@map("portfolios")
-}
-
-model PortfolioItem {
-  id              String                @id @default(cuid())
-  portfolioId     String
-  instrumentId    String
-  quantity        Decimal
-  averagePrice    Decimal
-  currentPrice    Decimal?
-  marketValue     Decimal?
-  totalCost       Decimal
-  unrealizedGain  Decimal?
-  unrealizedPct   Decimal?
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-  
-  // Relationships
-  portfolio       Portfolio             @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
-  instrument      FinancialInstrument   @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
-  
-  @@unique([portfolioId, instrumentId])
-  @@map("portfolio_items")
-}
-
-model Transaction {
-  id              String                @id @default(cuid())
-  userId          String
-  portfolioId     String?
-  instrumentId    String
-  type            TransactionType
-  quantity        Decimal
-  price           Decimal
-  totalAmount     Decimal
-  fees            Decimal               @default(0)
-  currency        String                @default("USD")
-  executedAt      DateTime
-  notes           String?
-  createdAt       DateTime              @default(now())
-  
-  // Relationships
-  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  portfolio       Portfolio?            @relation(fields: [portfolioId], references: [id], onDelete: SetNull)
-  instrument      FinancialInstrument   @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
-  
-  @@index([userId, executedAt])
-  @@index([instrumentId, executedAt])
-  @@map("transactions")
-}
-
 enum TransactionType {
   BUY
   SELL
@@ -274,71 +439,6 @@ enum TransactionType {
   SPLIT
   TRANSFER_IN
   TRANSFER_OUT
-}
-
-// ============================================================================
-// WATCHLISTS & ALERTS
-// ============================================================================
-
-model Watchlist {
-  id              String            @id @default(cuid())
-  userId          String
-  name            String
-  description     String?
-  isDefault       Boolean           @default(false)
-  isPublic        Boolean           @default(false)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
-  // Relationships
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items           WatchlistItem[]
-  
-  @@map("watchlists")
-}
-
-model WatchlistItem {
-  id              String                @id @default(cuid())
-  watchlistId     String
-  instrumentId    String
-  addedPrice      Decimal?
-  currentPrice    Decimal?
-  changeFromAdded Decimal?
-  changePctFromAdded Decimal?
-  notes           String?
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-  
-  // Relationships
-  watchlist       Watchlist             @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
-  instrument      FinancialInstrument   @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
-  
-  @@unique([watchlistId, instrumentId])
-  @@map("watchlist_items")
-}
-
-model Alert {
-  id              String                @id @default(cuid())
-  userId          String
-  instrumentId    String
-  type            AlertType
-  condition       AlertCondition
-  targetValue     Decimal
-  currentValue    Decimal?
-  isTriggered     Boolean               @default(false)
-  triggeredAt     DateTime?
-  isActive        Boolean               @default(true)
-  message         String?
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
-  
-  // Relationships
-  user            User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  instrument      FinancialInstrument   @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
-  
-  @@index([userId, isActive])
-  @@index([instrumentId, isActive])
-  @@map("alerts")
 }
 
 enum AlertType {
@@ -357,177 +457,10 @@ enum AlertCondition {
   CROSSES_BELOW
 }
 
-// ============================================================================
-// ANALYTICS & PREDICTIONS
-// ============================================================================
-
-
-model Prediction {
-  id              String                @id @default(cuid())
-  instrumentId    String
-  modelName       String
-  modelVersion    String
-  predictionType  PredictionType
-  timeHorizon     String                // e.g., "1d", "1w", "1m", "3m"
-  predictedValue  Decimal
-  confidence      Decimal               // 0.0 to 1.0
-  actualValue     Decimal?
-  accuracy        Decimal?
-  features        Json                  // Input features used
-  metadata        Json?
-  createdAt       DateTime              @default(now())
-  validUntil      DateTime
-  
-  // Relationships
-  instrument      FinancialInstrument   @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
-  
-  @@index([instrumentId, createdAt])
-  @@index([modelName, createdAt])
-  @@map("predictions")
-}
-
-model SentimentAnalysis {
-  id              String                @id @default(cuid())
-  instrumentId    String
-  source          String                // "news", "social", "earnings"
-  sentimentScore  Decimal               // -1.0 to 1.0
-  magnitude       Decimal               // 0.0 to 1.0
-  confidence      Decimal               // 0.0 to 1.0
-  textSample      String?
-  modelName       String
-  modelVersion    String
-  timestamp       DateTime
-  createdAt       DateTime              @default(now())
-  
-  // Relationships
-  instrument      FinancialInstrument   @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
-  
-  @@index([instrumentId, timestamp])
-  @@index([timestamp])
-  @@map("sentiment_analysis")
-}
-
-model TechnicalIndicator {
-  id              String                @id @default(cuid())
-  instrumentId    String
-  indicatorName   String                // "RSI", "MACD", "SMA", "EMA", etc.
-  value           Decimal
-  signal          String?               // "BUY", "SELL", "HOLD"
-  period          Int                   // e.g., 14 for RSI-14
-  timestamp       DateTime
-  interval        DataInterval
-  createdAt       DateTime              @default(now())
-  
-  // Relationships
-  instrument      FinancialInstrument   @relation(fields: [instrumentId], references: [id], onDelete: Cascade)
-  
-  @@unique([instrumentId, indicatorName, period, timestamp, interval])
-  @@index([instrumentId, indicatorName])
-  @@map("technical_indicators")
-}
-
 enum PredictionType {
   PRICE
   DIRECTION
   VOLATILITY
   VOLUME
   TREND
-}
-
-// ============================================================================
-// NEWS & EVENTS
-// ============================================================================
-
-model News {
-  id              String                @id @default(cuid())
-  instrumentId    String?
-  title           String
-  summary         String?
-  content         String?
-  source          String
-  author          String?
-  url             String?
-  imageUrl        String?
-  publishedAt     DateTime
-  sentiment       Decimal?              // -1.0 to 1.0
-  relevanceScore  Decimal?              // 0.0 to 1.0
-  tags            String[]
-  createdAt       DateTime              @default(now())
-  
-  // Relationships
-  instrument      FinancialInstrument?  @relation(fields: [instrumentId], references: [id], onDelete: SetNull)
-  
-  @@index([instrumentId, publishedAt])
-  @@index([publishedAt])
-  @@map("news")
-}
-
-model EconomicEvent {
-  id              String      @id @default(cuid())
-  name            String
-  description     String?
-  country         String
-  importance      String      // "LOW", "MEDIUM", "HIGH"
-  actualValue     String?
-  forecastValue   String?
-  previousValue   String?
-  unit            String?
-  eventTime       DateTime
-  createdAt       DateTime    @default(now())
-  
-  @@index([eventTime, importance])
-  @@map("economic_events")
-}
-
-// ============================================================================
-// SYSTEM & MONITORING
-// ============================================================================
-
-model DataSource {
-  id              String      @id @default(cuid())
-  name            String      @unique
-  type            String      // "API", "WEBSOCKET", "FILE"
-  url             String?
-  isActive        Boolean     @default(true)
-  rateLimitRpm    Int?        // requests per minute
-  lastFetchAt     DateTime?
-  nextFetchAt     DateTime?
-  errorCount      Int         @default(0)
-  lastError       String?
-  metadata        Json?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  
-  @@map("data_sources")
-}
-
-model SystemMetric {
-  id              String      @id @default(cuid())
-  name            String
-  value           Decimal
-  unit            String?
-  tags            Json?
-  timestamp       DateTime
-  createdAt       DateTime    @default(now())
-  
-  @@index([name, timestamp])
-  @@index([timestamp])
-  @@map("system_metrics")
-}
-
-model AuditLog {
-  id              String      @id @default(cuid())
-  userId          String?
-  action          String
-  resource        String
-  resourceId      String?
-  changes         Json?
-  ipAddress       String?
-  userAgent       String?
-  createdAt       DateTime    @default(now())
-  
-  @@index([userId, createdAt])
-  @@index([resource, createdAt])
-  @@index([createdAt])
-  @@map("audit_logs")
 }

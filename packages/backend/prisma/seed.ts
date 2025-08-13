@@ -9,7 +9,7 @@ async function main(): Promise<void> {
 
   // Create admin user
   const hashedPassword = await bcrypt.hash('admin123', 12);
-  
+
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@financial-pipeline.com' },
     update: {},
@@ -31,7 +31,7 @@ async function main(): Promise<void> {
 
   // Create demo user
   const demoPassword = await bcrypt.hash('demo123', 12);
-  
+
   const demoUser = await prisma.user.upsert({
     where: { email: 'demo@financial-pipeline.com' },
     update: {},
@@ -55,7 +55,8 @@ async function main(): Promise<void> {
       exchange: 'NASDAQ',
       sector: 'Technology',
       industry: 'Consumer Electronics',
-      description: 'Apple Inc. designs, manufactures, and markets consumer electronics, computer software, and online services.',
+      description:
+        'Apple Inc. designs, manufactures, and markets consumer electronics, computer software, and online services.',
     },
     {
       symbol: 'GOOGL',
@@ -82,7 +83,8 @@ async function main(): Promise<void> {
       exchange: 'NASDAQ',
       sector: 'Consumer Cyclical',
       industry: 'Auto Manufacturers',
-      description: 'Tesla, Inc. designs, develops, manufactures, and sells electric vehicles and energy generation systems.',
+      description:
+        'Tesla, Inc. designs, develops, manufactures, and sells electric vehicles and energy generation systems.',
     },
     {
       symbol: 'AMZN',
@@ -142,61 +144,61 @@ async function main(): Promise<void> {
   for (const instrument of createdInstruments.slice(0, 5)) {
     // Create daily market data for the last 30 days
     for (let i = 30; i >= 0; i--) {
-        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-        const basePrice = Math.random() * 200 + 50; // Random price between 50-250
-        const volatility = 0.02; // 2% daily volatility
-        
-        const open = basePrice * (1 + (Math.random() - 0.5) * volatility);
-        const close = open * (1 + (Math.random() - 0.5) * volatility);
-        const high = Math.max(open, close) * (1 + Math.random() * volatility / 2);
-        const low = Math.min(open, close) * (1 - Math.random() * volatility / 2);
-        const volume = Math.floor(Math.random() * 10000000) + 1000000;
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const basePrice = Math.random() * 200 + 50; // Random price between 50-250
+      const volatility = 0.02; // 2% daily volatility
 
-        await prisma.marketData.upsert({
-            where: {
-                instrumentId_timestamp_interval: {
-                    instrumentId: instrument.id,
-                    timestamp: date,
-                    interval: DataInterval.DAILY,
-                },
-            },
-            update: {},
-            create: {
-                instrumentId: instrument.id,
-                timestamp: date,
-                open,
-                high,
-                low,
-                close,
-                adjustedClose: close,
-                volume,
-                interval: DataInterval.DAILY,
-                source: 'SEED_DATA',
-            },
-        });
+      const open = basePrice * (1 + (Math.random() - 0.5) * volatility);
+      const close = open * (1 + (Math.random() - 0.5) * volatility);
+      const high = Math.max(open, close) * (1 + (Math.random() * volatility) / 2);
+      const low = Math.min(open, close) * (1 - (Math.random() * volatility) / 2);
+      const volume = Math.floor(Math.random() * 10000000) + 1000000;
+
+      await prisma.marketData.upsert({
+        where: {
+          instrumentId_timestamp_interval: {
+            instrumentId: instrument.id,
+            timestamp: date,
+            interval: DataInterval.DAILY,
+          },
+        },
+        update: {},
+        create: {
+          instrumentId: instrument.id,
+          timestamp: date,
+          open,
+          high,
+          low,
+          close,
+          adjustedClose: close,
+          volume,
+          interval: DataInterval.DAILY,
+          source: 'SEED_DATA',
+        },
+      });
     }
 
     // Create real-time quote
     const lastPrice = Math.random() * 200 + 50;
 
     await prisma.realTimeQuote.upsert({
-        where: { instrumentId: instrument.id },
-        update: {
-            price: lastPrice,
-            change: (Math.random() - 0.5) * 10,
-            changePercent: (Math.random() - 0.5) * 5,
-            volume: Math.floor(Math.random() * 1000000),
-            timestamp: now,
-        },
-        create: {
-            instrumentId: instrument.id,
-            price: lastPrice,
-            change: (Math.random() - 0.5) * 10,
-            changePercent: (Math.random() - 0.5) * 5,
-            volume: Math.floor(Math.random() * 1000000),
-            timestamp: now,
-            source: 'SEED_DATA',
-        },
+      where: { instrumentId: instrument.id },
+      update: {
+        price: lastPrice,
+        change: (Math.random() - 0.5) * 10,
+        changePercent: (Math.random() - 0.5) * 5,
+        volume: Math.floor(Math.random() * 1000000),
+        timestamp: now,
+      },
+      create: {
+        instrumentId: instrument.id,
+        price: lastPrice,
+        change: (Math.random() - 0.5) * 10,
+        changePercent: (Math.random() - 0.5) * 5,
+        volume: Math.floor(Math.random() * 1000000),
+        timestamp: now,
+        source: 'SEED_DATA',
+      },
     });
   }
 
@@ -222,29 +224,29 @@ async function main(): Promise<void> {
     const instrument = createdInstruments.find(i => i.symbol === position.symbol);
 
     if (instrument) {
-        await prisma.portfolioItem.create({
-            data: {
-                portfolioId: demoPortfolio.id,
-                instrumentId: instrument.id,
-                quantity: position.quantity,
-                averagePrice: position.price,
-                totalCost: position.quantity * position.price,
-            }
-        });
+      await prisma.portfolioItem.create({
+        data: {
+          portfolioId: demoPortfolio.id,
+          instrumentId: instrument.id,
+          quantity: position.quantity,
+          averagePrice: position.price,
+          totalCost: position.quantity * position.price,
+        },
+      });
 
-        // Create corresponding transactions
-        await prisma.transaction.create({
-            data: {
-                userId: demoUser.id,
-                portfolioId: demoPortfolio.id,
-                instrumentId: instrument.id,
-                type: 'BUY',
-                quantity: position.quantity,
-                price: position.price,
-                totalAmount: position.quantity * position.price,
-                executedAt: new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000),
-            }
-        });
+      // Create corresponding transactions
+      await prisma.transaction.create({
+        data: {
+          userId: demoUser.id,
+          portfolioId: demoPortfolio.id,
+          instrumentId: instrument.id,
+          type: 'BUY',
+          quantity: position.quantity,
+          price: position.price,
+          totalAmount: position.quantity * position.price,
+          executedAt: new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000),
+        },
+      });
     }
   }
 
@@ -339,7 +341,7 @@ async function main(): Promise<void> {
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error('❌ Seeding failed:', e);
     process.exit(1);
   })
