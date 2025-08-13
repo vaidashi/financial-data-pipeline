@@ -1,6 +1,6 @@
 # Financial Data Pipeline
 
-A real-time financial data monitoring system with predictive analytics, built with modern technologies for scalability and performance.
+A work in progress of a real-time financial data monitoring system with predictive analytics, built with modern technologies for scalability and performance.
 
 ## 🏗️ Architecture
 
@@ -64,4 +64,3 @@ This is a monorepo containing:
     make lint-fix     # Fix linting issues
     make format       # Format code
     make format-check # Check formatting
-```
