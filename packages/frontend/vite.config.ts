@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
@@ -9,13 +9,21 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@/components': path.resolve(__dirname, './src/components'),
-      '@/utils': path.resolve(__dirname, './src/utils'),
+      '@/pages': path.resolve(__dirname, './src/pages'),
+      '@/contexts': path.resolve(__dirname, './src/contexts'),
+      '@/lib': path.resolve(__dirname, './src/lib'),
       '@/types': path.resolve(__dirname, './src/types'),
     },
   },
   server: {
     port: 3000,
     host: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
   },
   build: {
     outDir: 'dist',
@@ -27,6 +35,10 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          forms: ['react-hook-form'],
+          query: ['react-query'],
+          utils: ['axios', 'clsx', 'tailwind-merge'],
         },
       },
     },
@@ -37,6 +49,7 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
     // Exclude build artifacts from test coverage
     coverage: {
+      provider: 'istanbul',
       exclude: ['dist/**', 'build/**', '**/*.d.ts'],
     },
   },
