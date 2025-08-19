@@ -1,4 +1,4 @@
-.PHONY: help install dev build test lint clean docker-up docker-down docker-build format setup ci db-setup db-migrate db-reset db-seed db-studio api-test
+.PHONY: help install dev build test lint clean docker-up docker-down docker-build format setup ci db-setup db-migrate db-reset db-seed db-studio api-test frontend-test
 
 # Colors for output
 RED := \033[31m
@@ -23,19 +23,43 @@ dev: ## Start development servers
 	@echo "$(YELLOW)Starting development servers...$(RESET)"
 	@npm run dev
 
+dev-backend: ## Start only backend development server
+	@echo "$(YELLOW)Starting backend development server...$(RESET)"
+	@npm run dev -w backend
+
+dev-frontend: ## Start only frontend development server
+	@echo "$(YELLOW)Starting frontend development server...$(RESET)"
+	@npm run dev -w frontend
+
 build: ## Build all packages
 	@echo "$(YELLOW)Building all packages...$(RESET)"
 	@npm run build
 	@echo "$(GREEN)✅ Build completed successfully$(RESET)"
+
+build-backend: ## Build backend only
+	@echo "$(YELLOW)Building backend...$(RESET)"
+	@npm run build -w backend
+	@echo "$(GREEN)✅ Backend build completed$(RESET)"
+
+build-frontend: ## Build frontend only
+	@echo "$(YELLOW)Building frontend...$(RESET)"
+	@npm run build -w frontend
+	@echo "$(GREEN)✅ Frontend build completed$(RESET)"
 
 test: ## Run all tests
 	@echo "$(YELLOW)Running tests...$(RESET)"
 	@npm run test
 	@echo "$(GREEN)✅ Tests completed$(RESET)"
 
-test-watch: ## Run tests in watch mode
-	@echo "$(YELLOW)Running tests in watch mode...$(RESET)"
-	@npm run test:watch
+test-backend: ## Run backend tests only
+	@echo "$(YELLOW)Running backend tests...$(RESET)"
+	@cd packages/backend && npm run test
+	@echo "$(GREEN)✅ Backend tests completed$(RESET)"
+
+test-frontend: ## Run frontend tests only
+	@echo "$(YELLOW)Running frontend tests...$(RESET)"
+	@cd packages/frontend && npm run test -- --run
+	@echo "$(GREEN)✅ Frontend tests completed$(RESET)"
 
 test-e2e: ## Run end-to-end tests
 	@echo "$(YELLOW)Running end-to-end tests...$(RESET)"
@@ -134,7 +158,7 @@ db-generate: ## Generate Prisma client
 	@cd packages/backend && npm run db:generate
 	@echo "$(GREEN)✅ Prisma client generated$(RESET)"
 
-# API Testing Commands
+# Testing Commands
 api-test: ## Test API endpoints
 	@echo "$(YELLOW)Testing API endpoints...$(RESET)"
 	@curl -f http://localhost:3001/api/v1/health > /dev/null && echo "$(GREEN)✅ Health endpoint working$(RESET)" || echo "$(RED)❌ Health endpoint failed$(RESET)"
@@ -143,6 +167,14 @@ api-test: ## Test API endpoints
 api-docs: ## Open API documentation
 	@echo "$(YELLOW)Opening API documentation...$(RESET)"
 	@open http://localhost:3001/api/docs || xdg-open http://localhost:3001/api/docs
+
+frontend-open: ## Open frontend in browser
+	@echo "$(YELLOW)Opening frontend application...$(RESET)"
+	@open http://localhost:3000 || xdg-open http://localhost:3000
+
+preview: ## Preview production build of frontend
+	@echo "$(YELLOW)Building and previewing frontend...$(RESET)"
+	@cd packages/frontend && npm run build && npm run preview
 
 setup: clean-artifacts ## Initial project setup
 	@echo "$(BLUE)🚀 Setting up Financial Data Pipeline...$(RESET)"
@@ -173,3 +205,17 @@ update-deps: ## Update dependencies
 
 reset: clean install ## Reset project (clean + install)
 	@echo "$(GREEN)✅ Project reset completed$(RESET)"
+
+# Development helpers
+logs-backend: ## Show backend logs
+	@echo "$(YELLOW)Showing backend logs...$(RESET)"
+	@docker-compose logs -f backend || echo "$(RED)Docker services not running$(RESET)"
+
+logs-frontend: ## Show frontend logs  
+	@echo "$(YELLOW)Frontend logs are shown in the terminal where you ran 'make dev'$(RESET)"
+
+status: ## Show service status
+	@echo "$(BLUE)Service Status:$(RESET)"
+	@curl -s http://localhost:3001/api/v1/health > /dev/null && echo "$(GREEN)✅ Backend: Running$(RESET)" || echo "$(RED)❌ Backend: Not running$(RESET)"
+	@curl -s http://localhost:3000 > /dev/null && echo "$(GREEN)✅ Frontend: Running$(RESET)" || echo "$(RED)❌ Frontend: Not running$(RESET)"
+	@docker-compose ps 2>/dev/null || echo "$(RED)❌ Docker services not running$(RESET)"
