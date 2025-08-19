@@ -218,4 +218,4 @@ status: ## Show service status
 	@echo "$(BLUE)Service Status:$(RESET)"
 	@curl -s http://localhost:3001/api/v1/health > /dev/null && echo "$(GREEN)✅ Backend: Running$(RESET)" || echo "$(RED)❌ Backend: Not running$(RESET)"
 	@curl -s http://localhost:3000 > /dev/null && echo "$(GREEN)✅ Frontend: Running$(RESET)" || echo "$(RED)❌ Frontend: Not running$(RESET)"
-	@docker-compose ps 2>/dev/null || echo "$(RED)❌ Docker services not running$(RESET)"
+	@docker compose ps 2>/dev/null || echo "$(RED)❌ Docker services not running$(RESET)"

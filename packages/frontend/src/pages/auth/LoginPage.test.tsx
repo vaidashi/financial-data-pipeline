@@ -21,7 +21,9 @@ const mockAuthContext = {
 vi.mock('../../contexts/AuthContext', async () => {
   const actual = await vi.importActual('../../contexts/AuthContext');
   return {
-    ...actual,
+    // Spread the actual module if it exists and is an object
+    ...(typeof actual === 'object' && actual !== null ? actual : {}),
+    // Override useAuth with our mock
     useAuth: () => mockAuthContext,
   };
 });
@@ -34,9 +36,7 @@ const renderWithProviders = (component: React.ReactElement) => {
   return render(
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <AuthProvider>
-          {component}
-        </AuthProvider>
+        <AuthProvider>{component}</AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );
@@ -49,18 +49,18 @@ describe('LoginPage', () => {
 
   it('renders login form', () => {
     renderWithProviders(<LoginPage />);
-    
+
     expect(screen.getByText('Welcome back')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email Address')).toBeInTheDocument();
-    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByTestId('email-input')).toBeInTheDocument();
+    expect(screen.getByTestId('password-input')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
   it('handles form submission', async () => {
     renderWithProviders(<LoginPage />);
-    
-    const emailInput = screen.getByLabelText('Email Address');
-    const passwordInput = screen.getByLabelText('Password');
+
+    const emailInput = screen.getByTestId('email-input');
+    const passwordInput = screen.getByTestId('password-input');
     const submitButton = screen.getByRole('button', { name: /sign in/i });
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
@@ -77,7 +77,7 @@ describe('LoginPage', () => {
 
   it('shows validation errors', async () => {
     renderWithProviders(<LoginPage />);
-    
+
     const submitButton = screen.getByRole('button', { name: /sign in/i });
     fireEvent.click(submitButton);
 
@@ -89,15 +89,15 @@ describe('LoginPage', () => {
 
   it('toggles password visibility', () => {
     renderWithProviders(<LoginPage />);
-    
-    const passwordInput = screen.getByLabelText('Password');
+
+    const passwordInput = screen.getByTestId('password-input');
     const toggleButton = screen.getByRole('button', { name: '' }); // Eye icon button
 
     expect(passwordInput).toHaveAttribute('type', 'password');
-    
+
     fireEvent.click(toggleButton);
     expect(passwordInput).toHaveAttribute('type', 'text');
-    
+
     fireEvent.click(toggleButton);
     expect(passwordInput).toHaveAttribute('type', 'password');
   });

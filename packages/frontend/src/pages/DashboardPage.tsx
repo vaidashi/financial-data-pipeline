@@ -42,7 +42,7 @@ const DashboardPage: React.FC = () => {
       icon: TrendingUp,
     },
     {
-      title: 'Today\'s Change',
+      title: "Today's Change",
       value: '-$180.50',
       change: '-0.7%',
       isPositive: false,
@@ -62,9 +62,7 @@ const DashboardPage: React.FC = () => {
       <div className="space-y-6">
         {/* Welcome header */}
         <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg p-6 text-white">
-          <h1 className="text-3xl font-bold">
-            Welcome back, {user?.firstName || user?.username}!
-          </h1>
+          <h1 className="text-3xl font-bold">Welcome back, {user?.firstName || user?.username}!</h1>
           <p className="mt-2 text-primary-100">
             Here's what's happening with your investments today.
           </p>
@@ -81,12 +79,18 @@ const DashboardPage: React.FC = () => {
                     <div>
                       <p className="text-sm font-medium text-gray-600">{stat.title}</p>
                       <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                      <p className={`text-sm ${stat.isPositive ? 'text-success-600' : 'text-error-600'}`}>
+                      <p
+                        className={`text-sm ${stat.isPositive ? 'text-success-600' : 'text-error-600'}`}
+                      >
                         {stat.change} from last week
                       </p>
                     </div>
-                    <div className={`p-3 rounded-full ${stat.isPositive ? 'bg-success-100' : 'bg-error-100'}`}>
-                      <IconComponent className={`h-6 w-6 ${stat.isPositive ? 'text-success-600' : 'text-error-600'}`} />
+                    <div
+                      className={`p-3 rounded-full ${stat.isPositive ? 'bg-success-100' : 'bg-error-100'}`}
+                    >
+                      <IconComponent
+                        className={`h-6 w-6 ${stat.isPositive ? 'text-success-600' : 'text-error-600'}`}
+                      />
                     </div>
                   </div>
                 </CardContent>
@@ -126,7 +130,10 @@ const DashboardPage: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {instrumentsData?.data.slice(0, 5).map((instrument: FinancialInstrument) => (
-                    <div key={instrument.id} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div
+                      key={instrument.id}
+                      className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
                           <span className="text-primary-600 font-medium text-sm">
@@ -140,17 +147,18 @@ const DashboardPage: React.FC = () => {
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-gray-900">
-                          {instrument.realTimeQuote 
+                          {instrument.realTimeQuote
                             ? formatCurrency(Number(instrument.realTimeQuote.price))
-                            : 'N/A'
-                          }
+                            : 'N/A'}
                         </p>
                         {instrument.realTimeQuote && (
-                          <p className={`text-sm ${
-                            Number(instrument.realTimeQuote.changePercent) >= 0 
-                              ? 'text-success-600' 
-                              : 'text-error-600'
-                          }`}>
+                          <p
+                            className={`text-sm ${
+                              Number(instrument.realTimeQuote.changePercent) >= 0
+                                ? 'text-success-600'
+                                : 'text-error-600'
+                            }`}
+                          >
                             {formatPercent(Number(instrument.realTimeQuote.changePercent))}
                           </p>
                         )}
@@ -171,9 +179,7 @@ const DashboardPage: React.FC = () => {
               <div className="text-center py-8">
                 <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600">No recent activity</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Your trading activity will appear here
-                </p>
+                <p className="text-sm text-gray-500 mt-1">Your trading activity will appear here</p>
               </div>
             </CardContent>
           </Card>

@@ -62,7 +62,7 @@ const InstrumentsPage: React.FC = () => {
                     type="text"
                     placeholder="Search by symbol or name..."
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={e => setSearchQuery(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   />
                 </div>
@@ -70,10 +70,10 @@ const InstrumentsPage: React.FC = () => {
               <div className="sm:w-48">
                 <select
                   value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
+                  onChange={e => setSelectedType(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 >
-                  {instrumentTypes.map((type) => (
+                  {instrumentTypes.map(type => (
                     <option key={type.value} value={type.value}>
                       {type.label}
                     </option>
@@ -114,9 +114,7 @@ const InstrumentsPage: React.FC = () => {
               <div className="text-center py-8">
                 <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600">No instruments found</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Try adjusting your search criteria
-                </p>
+                <p className="text-sm text-gray-500 mt-1">Try adjusting your search criteria</p>
               </div>
             ) : (
               <div className="space-y-1">
@@ -144,10 +142,9 @@ const InstrumentsPage: React.FC = () => {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-gray-900 text-lg">
-                        {instrument.realTimeQuote 
+                        {instrument.realTimeQuote
                           ? formatCurrency(Number(instrument.realTimeQuote.price))
-                          : 'N/A'
-                        }
+                          : 'N/A'}
                       </p>
                       {instrument.realTimeQuote && (
                         <div className="flex items-center justify-end space-x-1">
@@ -156,20 +153,22 @@ const InstrumentsPage: React.FC = () => {
                           ) : (
                             <TrendingDown className="h-4 w-4 text-error-600" />
                           )}
-                          <p className={`text-sm font-medium ${
-                            Number(instrument.realTimeQuote.changePercent) >= 0 
-                              ? 'text-success-600' 
-                              : 'text-error-600'
-                          }`}>
+                          <p
+                            className={`text-sm font-medium ${
+                              Number(instrument.realTimeQuote.changePercent) >= 0
+                                ? 'text-success-600'
+                                : 'text-error-600'
+                            }`}
+                          >
                             {formatPercent(Number(instrument.realTimeQuote.changePercent))}
                           </p>
                         </div>
                       )}
                       <p className="text-xs text-gray-500">
-                        Vol: {instrument.realTimeQuote 
+                        Vol:{' '}
+                        {instrument.realTimeQuote
                           ? Number(instrument.realTimeQuote.volume).toLocaleString()
-                          : 'N/A'
-                        }
+                          : 'N/A'}
                       </p>
                     </div>
                   </div>

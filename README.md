@@ -27,6 +27,10 @@ This is a monorepo containing:
    cd financial-data-pipeline
    make setup-full
    make dev
+   ```
+
+   - http://localhost:3001/api/docs 
+   - http://localhost:3000/
 
 1. **Available Commands**
     ```bash

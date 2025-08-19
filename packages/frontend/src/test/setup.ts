@@ -1,48 +1,44 @@
-import { afterEach, vi } from 'vitest';
+import '@testing-library/jest-dom';
+import { expect } from 'vitest';
+import * as matchers from '@testing-library/jest-dom/matchers';
 import { cleanup } from '@testing-library/react';
+import { afterEach } from 'vitest';
 
-// Cleanup after each test case
+// Extend Vitest's expect with jest-dom matchers
+expect.extend(matchers);
+
+// Clean up after each test
 afterEach(() => {
   cleanup();
 });
 
-// Mock IntersectionObserver with complete implementation
-class MockIntersectionObserver implements IntersectionObserver {
-  readonly root: Element | Document | null = null;
-  readonly rootMargin: string = '';
-  readonly thresholds: ReadonlyArray<number> = [0];
-  disconnect = vi.fn();
-  observe = vi.fn();
-  unobserve = vi.fn();
-  takeRecords = vi.fn().mockReturnValue([]);
-  
-  constructor(callback: IntersectionObserverCallback, options?: IntersectionObserverInit) {}
+// Mock IntersectionObserver
+class MockIntersectionObserver {
+  observe() {
+    return null;
+  }
+  unobserve() {
+    return null;
+  }
+  disconnect() {
+    return null;
+  }
+  constructor() {}
 }
 
-global.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
-
-// Mock ResizeObserver with complete implementation
-class MockResizeObserver implements ResizeObserver {
-  disconnect = vi.fn();
-  observe = vi.fn();
-  unobserve = vi.fn();
-  
-  constructor(callback: ResizeObserverCallback) {}
+// Mock ResizeObserver
+class MockResizeObserver {
+  observe() {
+    return null;
+  }
+  unobserve() {
+    return null;
+  }
+  disconnect() {
+    return null;
+  }
+  constructor() {}
 }
 
-global.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
-
-// Mock matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
-});
+window.IntersectionObserver = MockIntersectionObserver as any;
+window.ResizeObserver = MockResizeObserver as any;

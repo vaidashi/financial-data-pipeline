@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { User, Mail, Calendar, Shield } from 'lucide-react';
+import { Mail, Calendar, Shield } from 'lucide-react';
 
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/layout/Layout';
@@ -55,15 +55,16 @@ const ProfilePage: React.FC = () => {
             <CardContent className="p-6 text-center">
               <Avatar
                 src={user?.avatar || ''}
-                name={`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || ''}
+                name={
+                  `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || ''
+                }
                 size="xl"
                 className="mx-auto mb-4"
               />
               <h2 className="text-xl font-semibold text-gray-900">
-                {user?.firstName && user?.lastName 
+                {user?.firstName && user?.lastName
                   ? `${user.firstName} ${user.lastName}`
-                  : user?.username
-                }
+                  : user?.username}
               </h2>
               <p className="text-gray-600">@{user?.username}</p>
               <div className="mt-4 space-y-2 text-sm text-gray-500">
@@ -97,14 +98,14 @@ const ProfilePage: React.FC = () => {
                         required: 'First name is required',
                       })}
                       label="First Name"
-                      error={errors.firstName?.message}
+                      error={errors.firstName?.message || ''}
                     />
                     <Input
                       {...register('lastName', {
                         required: 'Last name is required',
                       })}
                       label="Last Name"
-                      error={errors.lastName?.message}
+                      error={errors.lastName?.message || ''}
                     />
                   </div>
 
@@ -118,14 +119,11 @@ const ProfilePage: React.FC = () => {
                     })}
                     type="email"
                     label="Email Address"
-                    error={errors.email?.message}
+                    error={errors.email?.message || ''}
                   />
 
                   <div className="flex justify-end">
-                    <Button
-                      type="submit"
-                      disabled={!isDirty}
-                    >
+                    <Button type="submit" disabled={!isDirty}>
                       Save Changes
                     </Button>
                   </div>

@@ -40,12 +40,8 @@ const RegisterPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Join and start tracking your investments
-          </p>
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Create your account</h2>
+          <p className="mt-2 text-sm text-gray-600">Join and start tracking your investments</p>
         </div>
 
         <Card>
@@ -58,7 +54,7 @@ const RegisterPage: React.FC = () => {
                   })}
                   label="First Name"
                   placeholder="John"
-                  error={errors.firstName?.message}
+                  error={errors.firstName?.message || ''}
                   autoComplete="given-name"
                 />
                 <Input
@@ -67,7 +63,7 @@ const RegisterPage: React.FC = () => {
                   })}
                   label="Last Name"
                   placeholder="Doe"
-                  error={errors.lastName?.message}
+                  error={errors.lastName?.message || ''}
                   autoComplete="family-name"
                 />
               </div>
@@ -86,7 +82,7 @@ const RegisterPage: React.FC = () => {
                 })}
                 label="Username"
                 placeholder="johndoe"
-                error={errors.username?.message}
+                error={errors.username?.message || ''}
                 autoComplete="username"
               />
 
@@ -98,7 +94,7 @@ const RegisterPage: React.FC = () => {
                 type="email"
                 label="Email Address"
                 placeholder="john@example.com"
-                error={errors.email?.message}
+                error={errors.email?.message || ''}
                 autoComplete="email"
               />
 
@@ -114,7 +110,7 @@ const RegisterPage: React.FC = () => {
                   type={showPassword ? 'text' : 'password'}
                   label="Password"
                   placeholder="Create a strong password"
-                  error={errors.password?.message}
+                  error={errors.password?.message || ''}
                   autoComplete="new-password"
                 />
                 <button
@@ -146,12 +142,7 @@ const RegisterPage: React.FC = () => {
                 </div>
               )}
 
-              <Button
-                type="submit"
-                className="w-full"
-                isLoading={isLoading}
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-full" isLoading={isLoading} disabled={isLoading}>
                 <UserPlus className="mr-2 h-4 w-4" />
                 Create Account
               </Button>
@@ -168,10 +159,7 @@ const RegisterPage: React.FC = () => {
               </div>
 
               <div className="mt-6 text-center">
-                <Link
-                  to="/login"
-                  className="font-medium text-primary-600 hover:text-primary-500"
-                >
+                <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
                   Sign in to your account
                 </Link>
               </div>

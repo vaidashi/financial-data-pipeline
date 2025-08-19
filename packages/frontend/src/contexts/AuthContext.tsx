@@ -18,29 +18,25 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = (): AuthContextType => {
-    const context = useContext(AuthContext);
+  const context = useContext(AuthContext);
 
-    if (!context) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
 
 interface AuthProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [isInitialized, setIsInitialized] = useState(false);
-    const queryClient = useQueryClient();
+  const [user, setUser] = useState<User | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const queryClient = useQueryClient();
 
-    // Get current user
-    const {
-    data: userData,
-    isLoading: isUserLoading,
-    isError,
-  } = useQuery(
+  // Get current user
+  const { isLoading: isUserLoading } = useQuery(
     'currentUser',
     async () => {
       const response = await api.get<User>(endpoints.me);
@@ -108,7 +104,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Initialize auth state on mount
   useEffect(() => {
     const token = tokenManager.getToken();
-    
+
     if (!token) {
       setIsInitialized(true);
     }
@@ -135,7 +131,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const value: AuthContextType = {
     user,
-    isLoading: !isInitialized || isUserLoading || loginMutation.isLoading || registerMutation.isLoading,
+    isLoading:
+      !isInitialized || isUserLoading || loginMutation.isLoading || registerMutation.isLoading,
     isAuthenticated: !!user,
     login,
     register,
@@ -144,4 +141,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};

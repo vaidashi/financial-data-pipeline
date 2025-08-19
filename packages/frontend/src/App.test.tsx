@@ -1,47 +1,46 @@
+// src/App.test.tsx
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-
 import App from './App';
 
-// Mock fetch
-global.fetch = vi.fn();
+// Define type for mocked fetch
+type MockResponse = {
+  ok: boolean;
+  json: () => Promise<any>;
+};
+
+// Mock fetch with proper typing
+global.fetch = vi.fn() as unknown as typeof global.fetch;
 
 describe('App', () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  it('renders main heading', () => {
-    (fetch as any).mockResolvedValue({
+  it('renders login page', () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: async () => ({ status: 'ok', timestamp: new Date().toISOString() }),
-    });
+    } as MockResponse);
 
     render(<App />);
 
-    expect(screen.getByText('Financial Data Pipeline')).toBeInTheDocument();
-    expect(screen.getByText('Real-time financial data monitoring system')).toBeInTheDocument();
+    expect(screen.getByText('Welcome back')).toBeInTheDocument();
+    expect(screen.getByText('Sign in to your account')).toBeInTheDocument();
+    expect(screen.getByTestId('email-input')).toBeInTheDocument();
+    expect(screen.getByTestId('password-input')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument();
   });
 
-  it('shows checking status initially', () => {
-    (fetch as any).mockResolvedValue({
+  it('displays demo credentials', () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => ({ status: 'ok', timestamp: new Date().toISOString() }),
-    });
+      json: async () => ({ status: 'ok' }),
+    } as MockResponse);
 
     render(<App />);
 
-    expect(screen.getByText(/API Status: Checking.../)).toBeInTheDocument();
-  });
-
-  it('handles API connection error', async () => {
-    (fetch as any).mockRejectedValue(new Error('Network error'));
-
-    render(<App />);
-
-    // Wait for the effect to complete
-    await new Promise(resolve => setTimeout(resolve, 100));
-
-    expect(screen.getByText(/API Status: Disconnected/)).toBeInTheDocument();
+    expect(screen.getByText('Demo Credentials:')).toBeInTheDocument();
+    expect(screen.getByText(/Email: demo@financial-pipeline.com/)).toBeInTheDocument();
   });
 });

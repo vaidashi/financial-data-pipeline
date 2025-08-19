@@ -71,15 +71,18 @@ const Header: React.FC = () => {
               >
                 <Avatar
                   src={user?.avatar || ''}
-                  name={`${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.username || ''}
+                  name={
+                    `${user?.firstName || ''} ${user?.lastName || ''}`.trim() ||
+                    user?.username ||
+                    ''
+                  }
                   size="sm"
                 />
                 <div className="hidden md:block text-left">
                   <p className="text-sm font-medium text-gray-900">
-                    {user?.firstName && user?.lastName 
+                    {user?.firstName && user?.lastName
                       ? `${user.firstName} ${user.lastName}`
-                      : user?.username
-                    }
+                      : user?.username}
                   </p>
                   <p className="text-xs text-gray-500">{user?.email}</p>
                 </div>

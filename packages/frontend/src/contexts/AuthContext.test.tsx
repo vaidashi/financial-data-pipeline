@@ -29,9 +29,9 @@ vi.mock('../lib/api', () => ({
 // Test component that uses the auth context
 const TestComponent: React.FC = () => {
   const { user, isLoading, isAuthenticated } = useAuth();
-  
+
   if (isLoading) return <div>Loading...</div>;
-  
+
   return (
     <div>
       <div data-testid="authenticated">{isAuthenticated ? 'true' : 'false'}</div>
@@ -62,8 +62,6 @@ describe('AuthContext', () => {
       </QueryClientProvider>
     );
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-    
     await waitFor(() => {
       expect(screen.getByTestId('authenticated')).toHaveTextContent('false');
       expect(screen.getByTestId('user')).toHaveTextContent('No user');

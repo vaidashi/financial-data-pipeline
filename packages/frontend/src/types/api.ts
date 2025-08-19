@@ -37,7 +37,17 @@ export interface FinancialInstrument {
   symbol: string;
   name: string;
   description?: string;
-  type: 'STOCK' | 'ETF' | 'MUTUAL_FUND' | 'BOND' | 'CRYPTO' | 'COMMODITY' | 'FOREX' | 'INDEX' | 'OPTION' | 'FUTURE';
+  type:
+    | 'STOCK'
+    | 'ETF'
+    | 'MUTUAL_FUND'
+    | 'BOND'
+    | 'CRYPTO'
+    | 'COMMODITY'
+    | 'FOREX'
+    | 'INDEX'
+    | 'OPTION'
+    | 'FUTURE';
   exchange: string;
   currency: string;
   sector?: string;
