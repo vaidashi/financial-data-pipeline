@@ -12,6 +12,7 @@ services:
     command: npm run dev -w backend
     volumes:
       - .:/app
+      - ./packages/backend:/app/packages/backend
       - /app/node_modules
       - /app/packages/backend/node_modules
       - /app/packages/frontend/node_modules
@@ -41,6 +42,7 @@ services:
     # command: npm run dev -w frontend
     volumes:
       - .:/app
+      - ./packages/frontend:/app/packages/frontend
       - /app/node_modules
       - /app/packages/backend/node_modules
       - /app/packages/frontend/node_modules

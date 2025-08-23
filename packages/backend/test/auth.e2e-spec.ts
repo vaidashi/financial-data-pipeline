@@ -72,7 +72,7 @@ describe('AuthController (e2e)', () => {
           username: `loginuser${Date.now()}`,
           password: 'password123',
           firstName: 'Login',
-          lastName: 'Test'
+          lastName: 'Test',
         });
 
       const { email } = registerResponse.body.user;
