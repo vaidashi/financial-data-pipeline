@@ -1,4 +1,8 @@
-.PHONY: help install dev build test lint clean docker-up docker-down docker-build format setup ci db-setup db-migrate db-reset db-seed db-studio api-test frontend-test
+.PHONY: help install dev build test lint clean format setup ci api-test frontend-test
+
+# =================================================================
+# VARIABLES
+# =================================================================
 
 # Colors for output
 RED := \033[31m
@@ -7,64 +11,172 @@ YELLOW := \033[33m
 BLUE := \033[34m
 RESET := \033[0m
 
-# Default target
+# =================================================================
+# HELP
+# =================================================================
+
 help: ## Show this help message
 	@echo "$(BLUE)Financial Data Pipeline - Available Commands$(RESET)"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-20s$(RESET) %s\n", $$1, $$2}'
 
+# =================================================================
+# LOCAL DEVELOPMENT
+# =================================================================
+
 install: ## Install all dependencies
 	@echo "$(YELLOW)Installing dependencies...$(RESET)"
 	@npm run install:all
 	@echo "$(GREEN)✅ Dependencies installed successfully$(RESET)"
 
-dev: ## Start development servers
+dev: ## Start development servers locally
 	@echo "$(YELLOW)Starting development servers...$(RESET)"
 	@npm run dev
 
-dev-backend: ## Start only backend development server
+dev-backend: ## Start only backend development server locally
 	@echo "$(YELLOW)Starting backend development server...$(RESET)"
 	@npm run dev -w backend
 
-dev-frontend: ## Start only frontend development server
+dev-frontend: ## Start only frontend development server locally
 	@echo "$(YELLOW)Starting frontend development server...$(RESET)"
 	@npm run dev -w frontend
 
-build: ## Build all packages
+build: ## Build all packages locally
 	@echo "$(YELLOW)Building all packages...$(RESET)"
 	@npm run build
 	@echo "$(GREEN)✅ Build completed successfully$(RESET)"
 
-build-backend: ## Build backend only
+build-backend: ## Build backend only locally
 	@echo "$(YELLOW)Building backend...$(RESET)"
 	@npm run build -w backend
 	@echo "$(GREEN)✅ Backend build completed$(RESET)"
 
-build-frontend: ## Build frontend only
+build-frontend: ## Build frontend only locally
 	@echo "$(YELLOW)Building frontend...$(RESET)"
 	@npm run build -w frontend
 	@echo "$(GREEN)✅ Frontend build completed$(RESET)"
 
-test: ## Run all tests
+# =================================================================
+# DOCKER DEVELOPMENT
+# =================================================================
+
+docker-up: ## Start development environment with Docker
+	@echo "$(YELLOW)Starting Docker development environment...$(RESET)"
+	@docker compose up -d
+	@echo "$(GREEN)✅ Docker services started for development$(RESET)"
+	@echo "$(BLUE)Services available at:$(RESET)"
+	@echo "  🚀 Backend API: http://localhost:3001"
+	@echo "  🎨 Frontend: http://localhost:5000"
+	@echo "  📊 Adminer (DB): http://localhost:8080"
+	@echo "  🔴 Redis Commander: http://localhost:8081"
+
+docker-down: ## Stop development environment
+	@echo "$(YELLOW)Stopping Docker development environment...$(RESET)"
+	@docker compose down
+	@echo "$(GREEN)✅ Docker services stopped$(RESET)"
+
+docker-build: ## Build development Docker images
+	@echo "$(YELLOW)Building development Docker images...$(RESET)"
+	@docker compose build
+	@echo "$(GREEN)✅ Docker images built for development$(RESET)"
+
+docker-logs: ## View Docker logs for development
+	@docker compose logs -f
+
+# =================================================================
+# DOCKER PRODUCTION
+# =================================================================
+
+docker-up-prod: ## Start production environment with Docker
+	@echo "$(YELLOW)Starting Docker production environment...$(RESET)"
+	@docker compose -f docker-compose.yml up -d --build
+	@echo "$(GREEN)✅ Docker services started for production$(RESET)"
+
+docker-down-prod: ## Stop production environment
+	@echo "$(YELLOW)Stopping Docker production environment...$(RESET)"
+	@docker compose -f docker-compose.yml down
+	@echo "$(GREEN)✅ Docker services stopped$(RESET)"
+
+docker-build-prod: ## Build production Docker images
+	@echo "$(YELLOW)Building production Docker images...$(RESET)"
+	@docker compose -f docker-compose.yml build
+	@echo "$(GREEN)✅ Docker images built for production$(RESET)"
+
+# =================================================================
+# DATABASE (LOCAL)
+# =================================================================
+
+db-migrate: ## Run database migrations locally
+	@echo "$(YELLOW)Running database migrations...$(RESET)"
+	@cd packages/backend && npm run db:migrate
+	@echo "$(GREEN)✅ Database migrations completed$(RESET)"
+
+db-seed: ## Seed database locally
+	@echo "$(YELLOW)Seeding database...$(RESET)"
+	@cd packages/backend && npm run db:seed
+	@echo "$(GREEN)✅ Database seeded successfully$(RESET)"
+
+db-reset: ## Reset database and run migrations locally
+	@echo "$(YELLOW)Resetting database...$(RESET)"
+	@cd packages/backend && npm run db:reset
+	@echo "$(GREEN)✅ Database reset completed$(RESET)"
+
+db-studio: ## Open Prisma Studio locally
+	@echo "$(YELLOW)Opening Prisma Studio...$(RESET)"
+	@cd packages/backend && npm run db:studio
+
+# =================================================================
+# DATABASE (DOCKER)
+# =================================================================
+
+docker-db-migrate: ## Run database migrations in Docker
+	@echo "$(YELLOW)Running database migrations in Docker...$(RESET)"
+	@docker compose exec backend npm run db:migrate
+	@echo "$(GREEN)✅ Database migrations completed$(RESET)"
+
+docker-db-seed: ## Seed database in Docker
+	@echo "$(YELLOW)Seeding database in Docker...$(RESET)"
+	@docker compose exec backend npm run db:seed
+	@echo "$(GREEN)✅ Database seeded successfully$(RESET)"
+
+docker-db-reset: ## Reset database in Docker
+	@echo "$(YELLOW)Resetting database in Docker...$(RESET)"
+	@docker compose exec backend npm run db:reset
+	@echo "$(GREEN)✅ Database reset completed$(RESET)"
+
+docker-db-studio: ## Open Prisma Studio from Docker container
+	@echo "$(YELLOW)Opening Prisma Studio...$(RESET)"
+	@echo "Forwarding port 5555 from the container. Access Prisma Studio at http://localhost:5555"
+	@docker compose exec backend npm run db:studio
+
+# =================================================================
+# TESTING
+# =================================================================
+
+test: ## Run all tests locally
 	@echo "$(YELLOW)Running tests...$(RESET)"
 	@npm run test
 	@echo "$(GREEN)✅ Tests completed$(RESET)"
 
-test-backend: ## Run backend tests only
+test-backend: ## Run backend tests only locally
 	@echo "$(YELLOW)Running backend tests...$(RESET)"
 	@cd packages/backend && npm run test
 	@echo "$(GREEN)✅ Backend tests completed$(RESET)"
 
-test-frontend: ## Run frontend tests only
+test-frontend: ## Run frontend tests only locally
 	@echo "$(YELLOW)Running frontend tests...$(RESET)"
 	@cd packages/frontend && npm run test -- --run
 	@echo "$(GREEN)✅ Frontend tests completed$(RESET)"
 
-test-e2e: ## Run end-to-end tests
+test-e2e: ## Run end-to-end tests locally
 	@echo "$(YELLOW)Running end-to-end tests...$(RESET)"
 	@cd packages/backend && npm run test:e2e
 	@echo "$(GREEN)✅ E2E tests completed$(RESET)"
+
+# =================================================================
+# LINTING & FORMATTING
+# =================================================================
 
 lint: ## Run linting
 	@echo "$(YELLOW)Running linting...$(RESET)"
@@ -86,6 +198,10 @@ format-check: ## Check code formatting
 	@npm run format:check
 	@echo "$(GREEN)✅ Code formatting check completed$(RESET)"
 
+# =================================================================
+# CLEANING
+# =================================================================
+
 clean: ## Clean build artifacts
 	@echo "$(YELLOW)Cleaning build artifacts...$(RESET)"
 	@npm run clean
@@ -101,121 +217,20 @@ clean-artifacts: ## Remove TypeScript artifacts (.d.ts, .tsbuildinfo)
 	@npm run clean:artifacts
 	@echo "$(GREEN)✅ TypeScript artifacts cleaned$(RESET)"
 
-docker-up: ## Start Docker services
-	@echo "$(YELLOW)Starting Docker services...$(RESET)"
-	@docker compose up -d
-	@echo "$(GREEN)✅ Docker services started$(RESET)"
-	@echo "$(BLUE)Services available at:$(RESET)"
-	@echo "  📊 Adminer (DB): http://localhost:8080"
-	@echo "  🔴 Redis Commander: http://localhost:8081"
+# =================================================================
+# SETUP
+# =================================================================
 
-docker-down: ## Stop Docker services
-	@echo "$(YELLOW)Stopping Docker services...$(RESET)"
-	@docker compose down
-	@echo "$(GREEN)✅ Docker services stopped$(RESET)"
-
-docker-build: ## Build Docker images
-	@echo "$(YELLOW)Building Docker images...$(RESET)"
-	@docker compose build
-	@echo "$(GREEN)✅ Docker images built$(RESET)"
-
-docker-logs: ## View Docker logs
-	@docker compose logs -f
-
-# Database Commands
-db-setup: docker-up ## Set up database with Docker and run initial migration
-	@echo "$(YELLOW)Setting up database...$(RESET)"
-	@sleep 5  # Wait for PostgreSQL to be ready
-	@cd packages/backend && npm run db:migrate
-	@echo "$(GREEN)✅ Database setup completed$(RESET)"
-
-db-migrate: ## Run database migrations
-	@echo "$(YELLOW)Running database migrations...$(RESET)"
-	@cd packages/backend && npm run db:migrate
-	@echo "$(GREEN)✅ Database migrations completed$(RESET)"
-
-db-migrate-deploy: ## Deploy migrations to production
-	@echo "$(YELLOW)Deploying database migrations...$(RESET)"
-	@cd packages/backend && npm run db:migrate:deploy
-	@echo "$(GREEN)✅ Database migrations deployed$(RESET)"
-
-db-reset: ## Reset database and run migrations
-	@echo "$(YELLOW)Resetting database...$(RESET)"
-	@cd packages/backend && npm run db:reset
-	@echo "$(GREEN)✅ Database reset completed$(RESET)"
-
-db-seed: ## Seed database with sample data
-	@echo "$(YELLOW)Seeding database...$(RESET)"
-	@cd packages/backend && npm run db:seed
-	@echo "$(GREEN)✅ Database seeded successfully$(RESET)"
-
-db-studio: ## Open Prisma Studio
-	@echo "$(YELLOW)Opening Prisma Studio...$(RESET)"
-	@cd packages/backend && npm run db:studio
-
-db-generate: ## Generate Prisma client
-	@echo "$(YELLOW)Generating Prisma client...$(RESET)"
-	@cd packages/backend && npm run db:generate
-	@echo "$(GREEN)✅ Prisma client generated$(RESET)"
-
-# Testing Commands
-api-test: ## Test API endpoints
-	@echo "$(YELLOW)Testing API endpoints...$(RESET)"
-	@curl -f http://localhost:3001/api/v1/health > /dev/null && echo "$(GREEN)✅ Health endpoint working$(RESET)" || echo "$(RED)❌ Health endpoint failed$(RESET)"
-	@curl -f http://localhost:3001/api/v1/instruments > /dev/null && echo "$(GREEN)✅ Instruments endpoint working$(RESET)" || echo "$(RED)❌ Instruments endpoint failed$(RESET)"
-
-api-docs: ## Open API documentation
-	@echo "$(YELLOW)Opening API documentation...$(RESET)"
-	@open http://localhost:3001/api/docs || xdg-open http://localhost:3001/api/docs
-
-frontend-open: ## Open frontend in browser
-	@echo "$(YELLOW)Opening frontend application...$(RESET)"
-	@open http://localhost:3000 || xdg-open http://localhost:3000
-
-preview: ## Preview production build of frontend
-	@echo "$(YELLOW)Building and previewing frontend...$(RESET)"
-	@cd packages/frontend && npm run build && npm run preview
-
-setup: clean-artifacts ## Initial project setup
+setup: install ## Initial project setup
 	@echo "$(BLUE)🚀 Setting up Financial Data Pipeline...$(RESET)"
-	@chmod +x scripts/setup.sh
-	@./scripts/setup.sh
-	@make clean-artifacts
-	@echo "$(GREEN)✅ Project setup completed!$(RESET)"
+	@echo "$(GREEN)✅ Project setup completed! Now run 'make docker-up' to start the development environment.$(RESET)"
 
-setup-full: setup db-setup db-seed ## Complete setup including database
+setup-full: setup docker-up docker-db-migrate docker-db-seed ## Complete setup including database
 	@echo "$(GREEN)✅ Full setup completed!$(RESET)"
-	@echo "$(BLUE)Available services:$(RESET)"
-	@echo "  🚀 Backend API: http://localhost:3001"
-	@echo "  📚 API Docs: http://localhost:3001/api/docs"
-	@echo "  🎨 Frontend: http://localhost:3000"
-	@echo "  📊 Adminer: http://localhost:8080"
-	@echo "  🔴 Redis Commander: http://localhost:8081"
 
-ci: lint format-check test build ## Run CI pipeline locally
+# =================================================================
+# CI/CD
+# =================================================================
+
+ci: lint test format-check docker-build-prod ## Run CI pipeline
 	@echo "$(GREEN)✅ CI pipeline completed successfully!$(RESET)"
-
-check-deps: ## Check for outdated dependencies
-	@echo "$(YELLOW)Checking for outdated dependencies...$(RESET)"
-	@npm outdated || true
-
-update-deps: ## Update dependencies
-	@echo "$(YELLOW)Updating dependencies...$(RESET)"
-	@npm update
-
-reset: clean install ## Reset project (clean + install)
-	@echo "$(GREEN)✅ Project reset completed$(RESET)"
-
-# Development helpers
-logs-backend: ## Show backend logs
-	@echo "$(YELLOW)Showing backend logs...$(RESET)"
-	@docker-compose logs -f backend || echo "$(RED)Docker services not running$(RESET)"
-
-logs-frontend: ## Show frontend logs  
-	@echo "$(YELLOW)Frontend logs are shown in the terminal where you ran 'make dev'$(RESET)"
-
-status: ## Show service status
-	@echo "$(BLUE)Service Status:$(RESET)"
-	@curl -s http://localhost:3001/api/v1/health > /dev/null && echo "$(GREEN)✅ Backend: Running$(RESET)" || echo "$(RED)❌ Backend: Not running$(RESET)"
-	@curl -s http://localhost:3000 > /dev/null && echo "$(GREEN)✅ Frontend: Running$(RESET)" || echo "$(RED)❌ Frontend: Not running$(RESET)"
-	@docker compose ps 2>/dev/null || echo "$(RED)❌ Docker services not running$(RESET)"
