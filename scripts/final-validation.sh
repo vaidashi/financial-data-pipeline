@@ -59,7 +59,7 @@ else
     exit 1
 fi
 
-if curl -f http://localhost:3000 > /dev/null 2>&1; then
+if curl -f http://localhost:5000 > /dev/null 2>&1; then
     echo -e "${GREEN}✅ Frontend server is responding${RESET}"
 else
     echo -e "${GREEN}✅ Frontend server started (React dev server takes time)${RESET}"

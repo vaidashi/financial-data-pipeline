@@ -1,16 +1,68 @@
 version: '3.8'
 
 services:
+  # Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    container_name: financial-pipeline-backend
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    networks:
+      - financial-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_URL=postgresql://postgres:postgres123@postgres:5432/financial_db?schema=public
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis123
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - FRONTEND_URL=http://localhost:5000
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Frontend Service
+  frontend:
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+    container_name: financial-pipeline-frontend
+    restart: unless-stopped
+    ports:
+      - "5000:80"
+    networks:
+      - financial-network
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     container_name: financial-pipeline-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: financial_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres123
-      PGDATA: /var/lib/postgresql/data/pgdata
+      - POSTGRES_DB=financial_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres123
+      - PGDATA=/var/lib/postgresql/data/pgdata
     ports:
       - "5432:5432"
     volumes:
@@ -37,7 +89,7 @@ services:
     networks:
       - financial-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "-a", "redis123", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -50,7 +102,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      ADMINER_DEFAULT_SERVER: postgres
+      - ADMINER_DEFAULT_SERVER=postgres
     networks:
       - financial-network
     depends_on:
@@ -62,7 +114,7 @@ services:
     container_name: financial-pipeline-redis-commander
     restart: unless-stopped
     environment:
-      REDIS_HOSTS: local:redis:6379:0:redis123
+      - REDIS_HOSTS=local:redis:6379:0:redis123
     ports:
       - "8081:8081"
     networks:

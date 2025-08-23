@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  backend:
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    build:
+      context: .
+      dockerfile: packages/backend/Dockerfile
+    container_name: financial-pipeline-backend-dev
+    command: npm run dev -w backend
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/packages/backend/node_modules
+      - /app/packages/frontend/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - DATABASE_URL=postgresql://postgres:postgres123@postgres:5432/financial_db?schema=public
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis123
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - FRONTEND_URL=http://localhost:5000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    build:
+      context: .
+      dockerfile: packages/frontend/Dockerfile
+    container_name: financial-pipeline-frontend-dev
+    # command: npm run dev -w frontend
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/packages/backend/node_modules
+      - /app/packages/frontend/node_modules
+    ports:
+      - "5000:80" # Vite dev server runs on port 3000
+    environment:
+      - NODE_ENV=development
+      - VITE_API_BASE_URL=http://localhost:3001/api/v1
+    depends_on:
+      - backend
+
+  adminer:
+    ports:
+      - "8080:8080"
+
+  redis-commander:
+    ports:
+      - "8081:8081"

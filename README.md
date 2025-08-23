@@ -30,7 +30,7 @@ This is a monorepo containing:
    ```
 
    - http://localhost:3001/api/docs 
-   - http://localhost:3000/
+   - http://localhost:5000/
 
 1. **Available Commands**
     ```bash
@@ -68,3 +68,10 @@ This is a monorepo containing:
     make lint-fix     # Fix linting issues
     make format       # Format code
     make format-check # Check formatting
+
+1. **Troubleshooting**
+
+For DNS issues related to pulling dependencies when building images for frontend/backend, use host network
+
+```bash
+docker build --network=host -t backend -f packages/backend/Dockerfile .
