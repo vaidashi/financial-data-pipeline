@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 
 import { AuthProvider } from './contexts/AuthContext';
+import { SocketProvider } from './contexts/SocketContext';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
@@ -28,10 +29,11 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthProvider>
-          <div className="App">
-            <Routes>
-              {/* Public routes */}
-              <Route path="/login" element={<LoginPage />} />
+          <SocketProvider>
+            <div className="App">
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
 
               {/* Protected routes */}
@@ -89,6 +91,7 @@ const App: React.FC = () => {
               }}
             />
           </div>
+          </SocketProvider>
         </AuthProvider>
       </Router>
     </QueryClientProvider>

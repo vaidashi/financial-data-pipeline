@@ -2,18 +2,24 @@ import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { FinancialInstrument, Prisma, InstrumentType } from '@prisma/client';
 
 import { DatabaseService } from '../database/database.service';
+import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class InstrumentsService {
   private readonly logger = new Logger(InstrumentsService.name);
 
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private readonly eventsGateway: EventsGateway,
+  ) {}
 
   async create(data: Prisma.FinancialInstrumentCreateInput): Promise<FinancialInstrument> {
     try {
-      return await this.databaseService.financialInstrument.create({
+      const newInstrument = await this.databaseService.financialInstrument.create({
         data,
       });
+      this.eventsGateway.broadcast('instruments', 'instrument:create', newInstrument);
+      return newInstrument;
     } catch (error) {
       this.logger.error('Error creating instrument:', error);
       throw error;
@@ -106,13 +112,21 @@ export class InstrumentsService {
       throw new NotFoundException('Financial instrument not found');
     }
 
-    return this.databaseService.financialInstrument.update({
+    const updatedInstrument = await this.databaseService.financialInstrument.update({
       where: { id },
       data: {
         ...data,
         updatedAt: new Date(),
       },
     });
+
+    this.eventsGateway.broadcast(
+      `instrument:${id}`,
+      'instrument:update',
+      updatedInstrument,
+    );
+
+    return updatedInstrument;
   }
 
   async delete(id: string): Promise<FinancialInstrument> {

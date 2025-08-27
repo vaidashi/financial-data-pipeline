@@ -106,9 +106,6 @@ temp/
 *.sqlite3
 *.db
 
-# Docker
-.dockerignore
-
 # Prometheus data
 prometheus_data/
 
@@ -120,3 +117,6 @@ data/
 
 # Testing
 .jest-cache/
+
+# Misc
+prompts/

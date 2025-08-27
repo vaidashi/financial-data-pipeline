@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { useQuery } from 'react-query';
+import React, { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
 import { Search, TrendingUp, TrendingDown } from 'lucide-react';
 
+import { useSocket } from '../contexts/SocketContext';
 import Layout from '../components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
 import api, { endpoints } from '../lib/api';
@@ -11,6 +12,8 @@ import type { FinancialInstrument, PaginatedResponse } from '../types/api';
 const InstrumentsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('');
+  const queryClient = useQueryClient();
+  const { socket, subscribe, unsubscribe } = useSocket();
 
   // Fetch instruments
   const { data: instrumentsData, isLoading } = useQuery(
@@ -26,11 +29,63 @@ const InstrumentsPage: React.FC = () => {
         `${endpoints.instruments}?${params.toString()}`
       );
       return response.data;
-    },
-    {
-      refetchInterval: 30000, // Refetch every 30 seconds
     }
   );
+
+  // Subscribe to instrument updates
+  useEffect(() => {
+    if (socket && instrumentsData) {
+      subscribe('instruments');
+      instrumentsData.data.forEach(instrument => {
+        subscribe(`instrument:${instrument.id}`);
+      });
+
+      return () => {
+        unsubscribe('instruments');
+        instrumentsData.data.forEach(instrument => {
+          unsubscribe(`instrument:${instrument.id}`);
+        });
+      };
+    }
+  }, [socket, instrumentsData, subscribe, unsubscribe]);
+
+  // Handle real-time updates
+  useEffect(() => {
+    if (socket) {
+      socket.on('instrument:update', (data: FinancialInstrument) => {
+        queryClient.setQueryData<PaginatedResponse<FinancialInstrument> | undefined>(
+          ['instruments', searchQuery, selectedType],
+          oldData => {
+            if (!oldData) return oldData;
+            return {
+              ...oldData,
+              data: oldData.data.map(instrument =>
+                instrument.id === data.id ? data : instrument
+              ),
+            };
+          }
+        );
+      });
+
+      socket.on('instrument:create', (data: FinancialInstrument) => {
+        queryClient.setQueryData<PaginatedResponse<FinancialInstrument> | undefined>(
+          ['instruments', searchQuery, selectedType],
+          oldData => {
+            if (!oldData) return oldData;
+            return {
+              ...oldData,
+              data: [data, ...oldData.data],
+            };
+          }
+        );
+      });
+
+      return () => {
+        socket.off('instrument:update');
+        socket.off('instrument:create');
+      };
+    }
+  }, [socket, queryClient, searchQuery, selectedType]);
 
   const instrumentTypes = [
     { value: '', label: 'All Types' },
