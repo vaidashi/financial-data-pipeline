@@ -11,6 +11,8 @@ COPY packages/backend/prisma ./packages/backend/prisma
 
 # Install dependencies
 RUN npm install
+# Install missing type definitions explicitly
+RUN npm install --save-dev @types/semver
 
 # Copy source code
 COPY packages/backend ./packages/backend

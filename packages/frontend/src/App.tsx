@@ -34,63 +34,63 @@ const App: React.FC = () => {
               <Routes>
                 {/* Public routes */}
                 <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
-              {/* Protected routes */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <ProfilePage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/instruments"
-                element={
-                  <ProtectedRoute>
-                    <InstrumentsPage />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Protected routes */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/instruments"
+                  element={
+                    <ProtectedRoute>
+                      <InstrumentsPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Redirects */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
+                {/* Redirects */}
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
 
-            {/* Toast notifications */}
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-                success: {
-                  iconTheme: {
-                    primary: '#22c55e',
-                    secondary: '#fff',
+              {/* Toast notifications */}
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#363636',
+                    color: '#fff',
                   },
-                },
-                error: {
-                  iconTheme: {
-                    primary: '#ef4444',
-                    secondary: '#fff',
+                  success: {
+                    iconTheme: {
+                      primary: '#22c55e',
+                      secondary: '#fff',
+                    },
                   },
-                },
-              }}
-            />
-          </div>
+                  error: {
+                    iconTheme: {
+                      primary: '#ef4444',
+                      secondary: '#fff',
+                    },
+                  },
+                }}
+              />
+            </div>
           </SocketProvider>
         </AuthProvider>
       </Router>

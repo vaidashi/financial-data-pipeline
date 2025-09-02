@@ -25,7 +25,6 @@ const DashboardPage: React.FC = () => {
       refetchInterval: 30000, // Refetch every 30 seconds
     }
   );
-
   const mockStats = [
     {
       title: 'Portfolio Value',

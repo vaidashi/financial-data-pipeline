@@ -10,7 +10,7 @@ export class InstrumentsService {
 
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly eventsGateway: EventsGateway,
+    private readonly eventsGateway: EventsGateway
   ) {}
 
   async create(data: Prisma.FinancialInstrumentCreateInput): Promise<FinancialInstrument> {
@@ -120,11 +120,11 @@ export class InstrumentsService {
       },
     });
 
-    this.eventsGateway.broadcast(
-      `instrument:${id}`,
-      'instrument:update',
-      updatedInstrument,
-    );
+    this.logger.log('Broadcasting instrument update via WebSocket:', updatedInstrument);
+    this.eventsGateway.server.emit(`instrument:update`, updatedInstrument);
+
+    // Also try sending to the specific instrument channel
+    this.eventsGateway.server.emit(`instrument:${id}`, updatedInstrument);
 
     return updatedInstrument;
   }

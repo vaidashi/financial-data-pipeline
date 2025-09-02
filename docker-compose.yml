@@ -46,6 +46,8 @@ services:
       - financial-network
     depends_on:
       - backend
+    environment:
+      - VITE_WS_URL=ws://backend:3001
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost/health"]
       interval: 10s

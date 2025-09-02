@@ -10,14 +10,7 @@ import { UsersModule } from './users/users.module';
 import { EventsModule } from './events/events.module';
 
 @Module({
-  imports: [
-    ConfigModule,
-    DatabaseModule,
-    AuthModule,
-    UsersModule,
-    InstrumentsModule,
-    EventsModule,
-  ],
+  imports: [ConfigModule, DatabaseModule, AuthModule, UsersModule, InstrumentsModule, EventsModule],
   controllers: [AppController],
   providers: [AppService],
 })
