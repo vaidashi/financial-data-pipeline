@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { useQuery } from 'react-query';
-import { Search, TrendingUp, TrendingDown } from 'lucide-react';
+import { Search, TrendingDown, TrendingUp } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from 'react-query';
 
 import Layout from '../components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
+import { useSocket } from '../contexts/SocketContext';
 import api, { endpoints } from '../lib/api';
 import { formatCurrency, formatPercent } from '../lib/utils';
 import type { FinancialInstrument, PaginatedResponse } from '../types/api';
@@ -11,6 +12,44 @@ import type { FinancialInstrument, PaginatedResponse } from '../types/api';
 const InstrumentsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('');
+  const queryClient = useQueryClient();
+  const { socket, subscribe, unsubscribe } = useSocket();
+
+  const handleInstrumentUpdate = useCallback(
+    (data: FinancialInstrument) => {
+      console.log('Received instrument update via WebSocket:', data);
+
+      queryClient.setQueryData<PaginatedResponse<FinancialInstrument> | undefined>(
+        ['instruments', searchQuery, selectedType],
+        oldData => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            data: oldData.data.map(instrument => (instrument.id === data.id ? data : instrument)),
+          };
+        }
+      );
+    },
+    [queryClient, searchQuery, selectedType]
+  );
+
+  const handleInstrumentCreate = useCallback(
+    (data: FinancialInstrument) => {
+      console.log('Received new instrument via WebSocket:', data);
+
+      queryClient.setQueryData<PaginatedResponse<FinancialInstrument> | undefined>(
+        ['instruments', searchQuery, selectedType],
+        oldData => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            data: [data, ...oldData.data],
+          };
+        }
+      );
+    },
+    [queryClient, searchQuery, selectedType]
+  );
 
   // Fetch instruments
   const { data: instrumentsData, isLoading } = useQuery(
@@ -26,11 +65,61 @@ const InstrumentsPage: React.FC = () => {
         `${endpoints.instruments}?${params.toString()}`
       );
       return response.data;
-    },
-    {
-      refetchInterval: 30000, // Refetch every 30 seconds
     }
   );
+
+  // Subscribe to instrument updates - only when instruments list changes
+  useEffect(() => {
+    if (!socket || !instrumentsData) return;
+
+    console.log('Setting up subscriptions for instruments');
+
+    // Subscribe to main channel
+    subscribe('instruments');
+
+    // Subscribe to individual instrument channels
+    instrumentsData.data.forEach(instrument => {
+      subscribe(`instrument:${instrument.id}`);
+    });
+
+    return () => {
+      console.log('Cleaning up instrument subscriptions');
+      unsubscribe('instruments');
+      if (instrumentsData) {
+        instrumentsData.data.forEach(instrument => {
+          unsubscribe(`instrument:${instrument.id}`);
+        });
+      }
+    };
+  }, [socket, instrumentsData?.data?.length, subscribe, unsubscribe]);
+
+  // Set up socket event handlers - only once when socket is available
+  useEffect(() => {
+    if (!socket) return;
+
+    console.log('Setting up WebSocket event handlers');
+
+    // Add listeners
+    socket.on('instrument:update', handleInstrumentUpdate);
+    socket.on('instrument:create', handleInstrumentCreate);
+
+    // Debug listener to confirm connection is working
+    socket.on('connect', () => console.log('Socket connected!'));
+    socket.on('disconnect', () => console.log('Socket disconnected!'));
+
+    // Add a test handler for ANY event
+    const debugHandler = (data: any) => {
+      console.log('Received socket event:', data);
+    };
+    socket.onAny(debugHandler);
+
+    return () => {
+      console.log('Removing WebSocket event handlers');
+      socket.off('instrument:update', handleInstrumentUpdate);
+      socket.off('instrument:create', handleInstrumentCreate);
+      socket.offAny(debugHandler);
+    };
+  }, [socket, handleInstrumentUpdate, handleInstrumentCreate]);
 
   const instrumentTypes = [
     { value: '', label: 'All Types' },

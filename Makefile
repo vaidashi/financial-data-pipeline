@@ -57,6 +57,11 @@ build-frontend: ## Build frontend only locally
 	@npm run build -w frontend
 	@echo "$(GREEN)✅ Frontend build completed$(RESET)"
 
+fix-permissions: ## Fix file permissions when switching to local machine after Docker runs
+	@echo "$(YELLOW)Fixing file permissions...$(RESET)"
+	@sudo chown -R $(shell id -u):$(shell id -g) packages/backend/dist packages/frontend/dist
+	@echo "$(GREEN)✅ Permissions fixed$(RESET)"
+
 # =================================================================
 # DOCKER DEVELOPMENT
 # =================================================================

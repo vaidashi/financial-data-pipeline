@@ -19,11 +19,19 @@ async function bootstrap(): Promise<void> {
   // Global prefix
   app.setGlobalPrefix('api/v1');
 
-  // Enable CORS
+  // CORS configuration for both HTTP and WebSockets
   app.enableCors({
-    origin: configService.get<string>('FRONTEND_URL') || 'http://localhost:5000',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5000',
+      'http://localhost', // Docker container hostnames
+      'http://frontend', // Docker service name
+      'http://127.0.0.1:3000', // Alternative localhost
+      'http://127.0.0.1:5000',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // Global filters
