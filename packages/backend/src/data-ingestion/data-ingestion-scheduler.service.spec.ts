@@ -18,12 +18,8 @@ describe('DataIngestionSchedulerService', () => {
       ],
     }).compile();
 
-    service = module.get<DataIngestionSchedulerService>(
-      DataIngestionSchedulerService,
-    );
-    dataIngestionService = module.get<DataIngestionService>(
-      DataIngestionService,
-    );
+    service = module.get<DataIngestionSchedulerService>(DataIngestionSchedulerService);
+    dataIngestionService = module.get<DataIngestionService>(DataIngestionService);
   });
 
   it('should be defined', () => {

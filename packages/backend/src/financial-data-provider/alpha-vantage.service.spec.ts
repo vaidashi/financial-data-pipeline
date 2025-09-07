@@ -68,8 +68,8 @@ describe('AlphaVantageService', () => {
     });
 
     it('should handle http errors', async () => {
-        mockHttpService.get.mockReturnValue(throwError(() => new Error('Network error')));
-        await expect(service.getDailyTimeSeries('TEST')).rejects.toThrow(HttpException);
+      mockHttpService.get.mockReturnValue(throwError(() => new Error('Network error')));
+      await expect(service.getDailyTimeSeries('TEST')).rejects.toThrow(HttpException);
     });
   });
 });
