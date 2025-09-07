@@ -45,6 +45,11 @@ async function bootstrap(): Promise<void> {
     setupSwagger(app);
   }
 
+  // Add BigInt serialization support
+  (BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+  };
+
   const port = configService.get<number>('PORT') || 3001;
   await app.listen(port);
 

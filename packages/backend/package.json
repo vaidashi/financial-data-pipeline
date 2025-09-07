@@ -32,6 +32,8 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@nestjs/axios": "^4.0.1",
+    "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^10.2.8",
     "@nestjs/config": "^3.1.1",
     "@nestjs/core": "^10.2.8",
@@ -39,10 +41,13 @@
     "@nestjs/passport": "^10.0.2",
     "@nestjs/platform-express": "^10.2.8",
     "@nestjs/platform-socket.io": "^10.4.20",
+    "@nestjs/schedule": "^6.0.0",
     "@nestjs/swagger": "^7.1.16",
     "@nestjs/websockets": "^10.4.20",
     "@prisma/client": "^5.6.0",
     "bcrypt": "^5.1.1",
+    "cache-manager": "^7.2.0",
+    "cache-manager-redis-store": "^3.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "joi": "^17.11.0",
