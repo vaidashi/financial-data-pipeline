@@ -26,29 +26,6 @@ export class InstrumentsService {
     }
   }
 
-  //Helper method to transform BigInt values
-  private transformBigIntToString(obj: any): any {
-    if (obj === null || obj === undefined) return obj;
-
-    if (typeof obj === 'bigint') {
-      return obj.toString();
-    }
-
-    if (Array.isArray(obj)) {
-      return obj.map(item => this.transformBigIntToString(item));
-    }
-
-    if (typeof obj === 'object') {
-      const transformed: any = {};
-      for (const [key, value] of Object.entries(obj)) {
-        transformed[key] = this.transformBigIntToString(value);
-      }
-      return transformed;
-    }
-
-    return obj;
-  }
-
   async findAll(params: {
     skip?: number;
     take?: number;
@@ -67,7 +44,7 @@ export class InstrumentsService {
     if (include !== undefined) queryParams.include = include;
 
     const result = await this.databaseService.financialInstrument.findMany(queryParams);
-    return this.transformBigIntToString(result);
+    return result;
   }
 
   async findById(id: string): Promise<FinancialInstrument | null> {

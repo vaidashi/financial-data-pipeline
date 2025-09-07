@@ -13,6 +13,8 @@ COPY packages/backend/prisma ./packages/backend/prisma
 RUN npm install
 # Install missing type definitions explicitly
 RUN npm install --save-dev @types/semver
+# Problematic packages that need to be explicitly installed due to missing dependencies in the package.json
+RUN npm install @nestjs/cache-manager cache-manager
 
 # Copy source code
 COPY packages/backend ./packages/backend

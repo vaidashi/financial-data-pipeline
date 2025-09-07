@@ -37,6 +37,7 @@ export class DataIngestionService {
             if (cachedData) this.logger.log(`Using cached daily data for symbol: ${symbol}`);
 
             const marketData = cachedData ?? await this.alphaVantageService.getDailyTimeSeries(symbol);
+            this.logger.log(`Fetched ${marketData.length} daily data points for symbol: ${symbol}`);
 
             if (!cachedData && marketData?.length > 0) {
                 // Cache for 1 hour

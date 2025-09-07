@@ -11,7 +11,7 @@ export class DataIngestionSchedulerService {
     @Cron(CronExpression.EVERY_HOUR)
     async handleDailyDataIngestion() {
         this.logger.log('Running daily data ingestion job');
-        this.dataIngestionService.ingestAllDailyData();
+        await this.dataIngestionService.ingestAllDailyData();
         this.logger.log('Daily data ingestion job completed');
     }
 }
