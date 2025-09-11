@@ -21,15 +21,15 @@ vi.mock('../../contexts/SocketContext', () => ({
 
 vi.mock('./LineChart', () => ({
   __esModule: true,
-  default: ({ data }: { data: any[] }) => <div data-testid="mock-chart">{JSON.stringify(data)}</div>,
+  default: ({ data }: { data: any[] }) => (
+    <div data-testid="mock-chart">{JSON.stringify(data)}</div>
+  ),
 }));
 
 vi.mock('../instruments/InstrumentSearch', () => ({
   __esModule: true,
   default: ({ onSelect }: { onSelect: (instrument: any) => void }) => (
-    <button onClick={() => onSelect({ symbol: 'GOOGL' })}>
-      Search
-    </button>
+    <button onClick={() => onSelect({ symbol: 'GOOGL' })}>Search</button>
   ),
 }));
 

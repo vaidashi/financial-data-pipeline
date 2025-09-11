@@ -19,9 +19,7 @@ const InstrumentSearch: React.FC<InstrumentSearchProps> = ({ onSelect }) => {
       if (!debouncedSearchTerm) {
         return [];
       }
-      const response = await api.get(
-        `${endpoints.instruments}/search?q=${debouncedSearchTerm}`
-      );
+      const response = await api.get(`${endpoints.instruments}/search?q=${debouncedSearchTerm}`);
       return response.data;
     },
     {

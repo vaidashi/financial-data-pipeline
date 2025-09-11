@@ -26,13 +26,17 @@ export class InstrumentsService {
     }
   }
 
- async findAll<T extends Prisma.FinancialInstrumentInclude | undefined = undefined>(params: {
+  async findAll<T extends Prisma.FinancialInstrumentInclude | undefined = undefined>(params: {
     skip?: number;
     take?: number;
     where?: Prisma.FinancialInstrumentWhereInput;
     orderBy?: Prisma.FinancialInstrumentOrderByWithRelationInput;
-    include?: T
-  }): Promise<T extends undefined ? FinancialInstrument[] : Prisma.FinancialInstrumentGetPayload<{include: NonNullable<T>}>[]> {
+    include?: T;
+  }): Promise<
+    T extends undefined
+      ? FinancialInstrument[]
+      : Prisma.FinancialInstrumentGetPayload<{ include: NonNullable<T> }>[]
+  > {
     const { skip, take, where, orderBy, include } = params;
 
     const queryParams: any = {};

@@ -85,9 +85,7 @@ describe('InstrumentsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [InstrumentsController],
-      providers: [
-        { provide: InstrumentsService, useValue: mockInstrumentsService },
-      ],
+      providers: [{ provide: InstrumentsService, useValue: mockInstrumentsService }],
     })
       .overrideGuard(JwtAuthGuard)
       .useValue({ canActivate: () => true })
@@ -124,7 +122,7 @@ describe('InstrumentsController', () => {
         DataInterval.FIVE_MINUTES,
         expect.any(Date),
         undefined,
-        limit,
+        limit
       );
       expect(result).toEqual(marketData);
     });
@@ -140,4 +138,3 @@ describe('InstrumentsController', () => {
     });
   });
 });
-

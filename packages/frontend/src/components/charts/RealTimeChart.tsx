@@ -37,16 +37,19 @@ const RealTimeChart: React.FC = () => {
       const response = await api.get(
         `${endpoints.instruments}/symbol/${instrument}/market-data?range=${range}&limit=${limit}`
       );
-      return response.data.map((d: any) => {
-        const date = new Date(d.timestamp);
-        const time = (timeRange === 'live' || timeRange === '1D')
-          ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          : date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-        return {
-          price: parseFloat(d.close),
-          time,
-        };
-      }).reverse(); // Reverse to have oldest data first
+      return response.data
+        .map((d: any) => {
+          const date = new Date(d.timestamp);
+          const time =
+            timeRange === 'live' || timeRange === '1D'
+              ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              : date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+          return {
+            price: parseFloat(d.close),
+            time,
+          };
+        })
+        .reverse(); // Reverse to have oldest data first
     },
     {
       refetchOnWindowFocus: false,
@@ -59,18 +62,24 @@ const RealTimeChart: React.FC = () => {
     }
   }, [historicalData]);
 
-  const handlePriceUpdate = useCallback((payload: PriceUpdatePayload) => {
-    if (payload.symbol === instrument) {
-      setData(prevData => {
-        const newPoint = {
-          time: new Date(payload.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          price: payload.price,
-        };
-        const newData = [...prevData, newPoint];
-        return newData.slice(-20); // Keep a sliding window
-      });
-    }
-  }, [instrument]);
+  const handlePriceUpdate = useCallback(
+    (payload: PriceUpdatePayload) => {
+      if (payload.symbol === instrument) {
+        setData(prevData => {
+          const newPoint = {
+            time: new Date(payload.timestamp).toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+            price: payload.price,
+          };
+          const newData = [...prevData, newPoint];
+          return newData.slice(-20); // Keep a sliding window
+        });
+      }
+    },
+    [instrument]
+  );
 
   // Handle WebSocket subscriptions
   useEffect(() => {

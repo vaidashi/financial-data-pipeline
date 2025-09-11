@@ -8,7 +8,9 @@ describe('InstrumentSearch', async () => {
   const { useQuery: useQueryMock } = vi.mocked(await import('react-query'));
 
   it('renders the search input', () => {
-    useQueryMock.mockReturnValue({ data: [], isLoading: false } as unknown as ReturnType<typeof useQueryMock>);
+    useQueryMock.mockReturnValue({ data: [], isLoading: false } as unknown as ReturnType<
+      typeof useQueryMock
+    >);
     render(<InstrumentSearch onSelect={() => {}} />);
     expect(screen.getByPlaceholderText('Search for an instrument...')).toBeInTheDocument();
   });
@@ -18,7 +20,9 @@ describe('InstrumentSearch', async () => {
       { id: '1', symbol: 'AAPL', name: 'Apple Inc.' },
       { id: '2', symbol: 'AMZN', name: 'Amazon.com, Inc.' },
     ];
-    useQueryMock.mockReturnValue({ data: searchResults, isLoading: false } as unknown as ReturnType<typeof useQueryMock>);
+    useQueryMock.mockReturnValue({ data: searchResults, isLoading: false } as unknown as ReturnType<
+      typeof useQueryMock
+    >);
 
     render(<InstrumentSearch onSelect={() => {}} />);
     const input = screen.getByPlaceholderText('Search for an instrument...');
@@ -33,7 +37,9 @@ describe('InstrumentSearch', async () => {
   it('calls onSelect when an instrument is clicked', async () => {
     const onSelect = vi.fn();
     const searchResults = [{ id: '1', symbol: 'AAPL', name: 'Apple Inc.' }];
-    useQueryMock.mockReturnValue({ data: searchResults, isLoading: false } as unknown as ReturnType<typeof useQueryMock>);
+    useQueryMock.mockReturnValue({ data: searchResults, isLoading: false } as unknown as ReturnType<
+      typeof useQueryMock
+    >);
 
     render(<InstrumentSearch onSelect={onSelect} />);
     const input = screen.getByPlaceholderText('Search for an instrument...');

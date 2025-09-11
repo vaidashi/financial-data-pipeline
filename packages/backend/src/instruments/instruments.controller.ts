@@ -175,7 +175,13 @@ export class InstrumentsController {
 
     const interval = range === '1D' ? DataInterval.FIVE_MINUTES : DataInterval.DAILY;
 
-    return this.instrumentsService.getMarketData(instrument.id, interval, fromDate, undefined, limit);
+    return this.instrumentsService.getMarketData(
+      instrument.id,
+      interval,
+      fromDate,
+      undefined,
+      limit
+    );
   }
 
   @Put(':id')

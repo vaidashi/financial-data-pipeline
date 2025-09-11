@@ -10,7 +10,7 @@ describe('RealTimeDataSimulatorService', () => {
   let service: RealTimeDataSimulatorService;
   let instrumentsService: InstrumentsService;
   let eventsGateway: EventsGateway;
-    let databaseService: DatabaseService;
+  let databaseService: DatabaseService;
 
   const mockInstrumentsService = {
     findAll: jest.fn(),
@@ -75,12 +75,12 @@ describe('RealTimeDataSimulatorService', () => {
     expect(eventsGateway.broadcast).toHaveBeenCalledWith(
       'instrument-price:AAPL',
       'price:update',
-      expect.any(Object),
+      expect.any(Object)
     );
     expect(eventsGateway.broadcast).toHaveBeenCalledWith(
       'instrument-price:GOOGL',
       'price:update',
-      expect.any(Object),
+      expect.any(Object)
     );
   });
 });
