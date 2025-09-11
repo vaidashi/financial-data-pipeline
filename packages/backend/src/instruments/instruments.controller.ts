@@ -12,7 +12,7 @@ import {
   DefaultValuePipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { InstrumentType, UserRole } from '@prisma/client';
+import { InstrumentType, UserRole, DataInterval } from '@prisma/client';
 
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -127,7 +127,7 @@ export class InstrumentsController {
   @ApiResponse({ status: 200, description: 'Market data retrieved' })
   async getMarketData(
     @Param('id') id: string,
-    @Query('interval') interval?: string,
+    @Query('interval') interval?: DataInterval,
     @Query('from') from?: string,
     @Query('to') to?: string,
     @Query('limit', new DefaultValuePipe(100), ParseIntPipe) limit?: number
@@ -136,6 +136,52 @@ export class InstrumentsController {
     const toDate = to ? new Date(to) : undefined;
 
     return this.instrumentsService.getMarketData(id, interval, fromDate, toDate, limit);
+  }
+
+  @Get('symbol/:symbol/market-data')
+  @ApiOperation({ summary: 'Get market data for an instrument by symbol' })
+  @ApiQuery({ name: 'range', required: false, enum: ['1D', '1W', '1M'] })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiResponse({ status: 200, description: 'Market data retrieved' })
+  async getMarketDataBySymbol(
+    @Param('symbol') symbol: string,
+    @Query('range') range?: '1D' | '1W' | '1M',
+    @Query('limit', new DefaultValuePipe(100), ParseIntPipe) limit?: number
+  ) {
+    const instrument = await this.instrumentsService.findBySymbol(symbol);
+
+    if (!instrument) {
+      return [];
+    }
+
+    let fromDate: Date | undefined;
+
+    if (range) {
+      fromDate = new Date();
+
+      if (range === '1D') {
+        fromDate.setDate(fromDate.getDate() - 1);
+      } else if (range === '1W') {
+        fromDate.setDate(fromDate.getDate() - 7);
+      } else if (range === '1M') {
+        fromDate.setMonth(fromDate.getMonth() - 1);
+      }
+    }
+
+    // For live data fetch recent intraday data
+    if (range === '1D' && !limit) {
+      limit = 288; // 288 5-minute intervals in a day
+    }
+
+    const interval = range === '1D' ? DataInterval.FIVE_MINUTES : DataInterval.DAILY;
+
+    return this.instrumentsService.getMarketData(
+      instrument.id,
+      interval,
+      fromDate,
+      undefined,
+      limit
+    );
   }
 
   @Put(':id')

@@ -1,30 +1,14 @@
 import React from 'react';
-import { useQuery } from 'react-query';
 import { TrendingUp, TrendingDown, DollarSign, Activity } from 'lucide-react';
 
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/layout/Layout';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/Card';
-import api, { endpoints } from '../lib/api';
-import { formatCurrency, formatPercent } from '../lib/utils';
-import type { FinancialInstrument, PaginatedResponse } from '../types/api';
+import { Card, CardContent } from '../components/ui/Card';
+import RealTimeChart from '../components/charts/RealTimeChart';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
-
-  // Fetch trending instruments
-  const { data: instrumentsData, isLoading: instrumentsLoading } = useQuery(
-    'trendingInstruments',
-    async () => {
-      const response = await api.get<PaginatedResponse<FinancialInstrument>>(
-        `${endpoints.instruments}?limit=8`
-      );
-      return response.data;
-    },
-    {
-      refetchInterval: 30000, // Refetch every 30 seconds
-    }
-  );
+  // Mock data for stats - will be removed when backend is integrated for this component
   const mockStats = [
     {
       title: 'Portfolio Value',
@@ -98,91 +82,8 @@ const DashboardPage: React.FC = () => {
           })}
         </div>
 
-        {/* Market overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Trending stocks */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Market Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {instrumentsLoading ? (
-                <div className="space-y-3">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-gray-300 rounded"></div>
-                          <div className="space-y-1">
-                            <div className="w-20 h-4 bg-gray-300 rounded"></div>
-                            <div className="w-32 h-3 bg-gray-300 rounded"></div>
-                          </div>
-                        </div>
-                        <div className="text-right space-y-1">
-                          <div className="w-16 h-4 bg-gray-300 rounded"></div>
-                          <div className="w-12 h-3 bg-gray-300 rounded"></div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {instrumentsData?.data.slice(0, 5).map((instrument: FinancialInstrument) => (
-                    <div
-                      key={instrument.id}
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                          <span className="text-primary-600 font-medium text-sm">
-                            {instrument.symbol.slice(0, 2)}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{instrument.symbol}</p>
-                          <p className="text-sm text-gray-500">{instrument.name}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium text-gray-900">
-                          {instrument.realTimeQuote
-                            ? formatCurrency(Number(instrument.realTimeQuote.price))
-                            : 'N/A'}
-                        </p>
-                        {instrument.realTimeQuote && (
-                          <p
-                            className={`text-sm ${
-                              Number(instrument.realTimeQuote.changePercent) >= 0
-                                ? 'text-success-600'
-                                : 'text-error-600'
-                            }`}
-                          >
-                            {formatPercent(Number(instrument.realTimeQuote.changePercent))}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent activity placeholder */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600">No recent activity</p>
-                <p className="text-sm text-gray-500 mt-1">Your trading activity will appear here</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Market Chart */}
+        <RealTimeChart />
       </div>
     </Layout>
   );
