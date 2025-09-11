@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
-import { FinancialInstrument, Prisma, InstrumentType } from '@prisma/client';
+import { FinancialInstrument, Prisma, InstrumentType, DataInterval } from '@prisma/client';
 
 import { DatabaseService } from '../database/database.service';
 import { EventsGateway } from '../events/events.gateway';
@@ -26,13 +26,13 @@ export class InstrumentsService {
     }
   }
 
-  async findAll(params: {
+ async findAll<T extends Prisma.FinancialInstrumentInclude | undefined = undefined>(params: {
     skip?: number;
     take?: number;
     where?: Prisma.FinancialInstrumentWhereInput;
     orderBy?: Prisma.FinancialInstrumentOrderByWithRelationInput;
-    include?: Prisma.FinancialInstrumentInclude;
-  }): Promise<FinancialInstrument[]> {
+    include?: T
+  }): Promise<T extends undefined ? FinancialInstrument[] : Prisma.FinancialInstrumentGetPayload<{include: NonNullable<T>}>[]> {
     const { skip, take, where, orderBy, include } = params;
 
     const queryParams: any = {};
@@ -44,7 +44,7 @@ export class InstrumentsService {
     if (include !== undefined) queryParams.include = include;
 
     const result = await this.databaseService.financialInstrument.findMany(queryParams);
-    return result;
+    return result as any; // Type assertion needed because of conditional return type
   }
 
   async findById(id: string): Promise<FinancialInstrument | null> {
@@ -144,7 +144,7 @@ export class InstrumentsService {
 
   async getMarketData(
     instrumentId: string,
-    interval: string = 'DAILY',
+    interval: DataInterval = DataInterval.DAILY,
     from?: Date,
     to?: Date,
     limit = 100
