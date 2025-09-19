@@ -9,36 +9,36 @@ import RealTimeChart from '../components/charts/RealTimeChart';
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   // Mock data for stats - will be removed when backend is integrated for this component
-  const mockStats = [
-    {
-      title: 'Portfolio Value',
-      value: '$24,580.00',
-      change: '+12.5%',
-      isPositive: true,
-      icon: DollarSign,
-    },
-    {
-      title: 'Total Return',
-      value: '$2,580.00',
-      change: '+8.2%',
-      isPositive: true,
-      icon: TrendingUp,
-    },
-    {
-      title: "Today's Change",
-      value: '-$180.50',
-      change: '-0.7%',
-      isPositive: false,
-      icon: TrendingDown,
-    },
-    {
-      title: 'Active Positions',
-      value: '12',
-      change: '+2',
-      isPositive: true,
-      icon: Activity,
-    },
-  ];
+  // const mockStats = [
+  //   {
+  //     title: 'Portfolio Value',
+  //     value: '$24,580.00',
+  //     change: '+12.5%',
+  //     isPositive: true,
+  //     icon: DollarSign,
+  //   },
+  //   {
+  //     title: 'Total Return',
+  //     value: '$2,580.00',
+  //     change: '+8.2%',
+  //     isPositive: true,
+  //     icon: TrendingUp,
+  //   },
+  //   {
+  //     title: "Today's Change",
+  //     value: '-$180.50',
+  //     change: '-0.7%',
+  //     isPositive: false,
+  //     icon: TrendingDown,
+  //   },
+  //   {
+  //     title: 'Active Positions',
+  //     value: '12',
+  //     change: '+2',
+  //     isPositive: true,
+  //     icon: Activity,
+  //   },
+  // ];
 
   return (
     <Layout>
@@ -52,7 +52,7 @@ const DashboardPage: React.FC = () => {
         </div>
 
         {/* Stats overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {mockStats.map((stat, index) => {
             const IconComponent = stat.icon;
             return (
@@ -80,7 +80,7 @@ const DashboardPage: React.FC = () => {
               </Card>
             );
           })}
-        </div>
+        </div> */}
 
         {/* Market Chart */}
         <RealTimeChart />
