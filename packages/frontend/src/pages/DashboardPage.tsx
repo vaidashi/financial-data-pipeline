@@ -1,9 +1,7 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, DollarSign, Activity } from 'lucide-react';
 
 import { useAuth } from '../contexts/AuthContext';
 import Layout from '../components/layout/Layout';
-import { Card, CardContent } from '../components/ui/Card';
 import RealTimeChart from '../components/charts/RealTimeChart';
 
 const DashboardPage: React.FC = () => {

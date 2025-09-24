@@ -12,6 +12,7 @@ import { UsersModule } from './users/users.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { FinancialDataProviderModule } from './financial-data-provider/financial-data-provider.module';
 import { DataIngestionModule } from './data-ingestion/data-ingestion.module';
+import { PredictiveAnalyticsModule } from './predictive-analytics/predictive-analytics.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { DataIngestionModule } from './data-ingestion/data-ingestion.module';
     EventsModule,
     FinancialDataProviderModule,
     DataIngestionModule,
+    PredictiveAnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
